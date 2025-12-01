@@ -1,53 +1,247 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Chewatabingo Mini App</title>
-    <link rel="stylesheet" href="style.css"> 
-</head>
-<body>
-    <div class="main-wrapper">
-        <div class="top-info-bar">
-            <div class="logo-placeholder">C</div>
-            <div class="title-text">ጨዋታ ቢንጎ</div>
-            <div class="info-group">
-                <div class="info-box wallet-box">Wallet <span id="wallet-amount">107 ETB</span></div>
-                <div class="info-box stake-box">Stake <span id="stake-amount">10 ETB</span></div>
-            </div>
-        </div>
+/* style.css (የተሟላ እና የተጨመቀ Layout) */
 
-        <div id="called-number-display-wrapper">
-            <div id="called-number-display" class="called-number-display">B-11</div>
-        </div>
-        
+/* አጠቃላይ ገጽታ ቅንጅት */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #12121e;
+    color: #f4f4f9;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100vh;
+    box-sizing: border-box;
+    overflow-x: hidden; 
+}
 
-        <div class="game-area-grid">
-            <div class="left-master-grid">
-                <div id="master-grid" class="master-grid">
-                    </div>
-            </div>
+.main-wrapper {
+    width: 100%;
+    padding: 10px 5px; 
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
 
-            <div class="right-player-area">
-                <div class="card-info">Your Cards <span id="card-count">1</span></div>
-                <div class="card-box">
-                    <div class="card-header">Card Number <span id="card-id">44</span></div>
-                    <div id="player-bingo-card" class="bingo-card-player">
-                        </div>
-                </div>
-                
-                <div class="status-indicator">Bingo <span id="bingo-status" class="status-connected">Connected</span></div>
-            </div>
-        </div>
+/* ===== ራስጌ (Wallet / Stake) ===== */
+.top-info-bar {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr; 
+    gap: 5px;
+    align-items: center;
+    margin-bottom: 5px;
+}
 
-        <div class="action-buttons">
-            <button id="exit-btn" class="btn exit-btn">Exit</button>
-            <button id="refresh-btn" class="btn refresh-btn">Refresh</button>
-            <button id="reserve-btn" class="btn reserve-btn">Reserve</button>
-        </div>
-    </div>
+.logo-placeholder {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #ffc107;
+    text-align: left;
+}
 
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="game.js"></script>
-</body>
-</html>
+.title-text {
+    font-size: 1em;
+    font-weight: 600;
+    text-align: left;
+    margin-right: -10px; 
+}
+
+.info-group {
+    display: flex;
+    gap: 5px;
+    grid-column: 3; 
+}
+
+.info-box {
+    background-color: #ffc107;
+    color: #12121e;
+    border-radius: 10px;
+    padding: 3px 6px; 
+    font-size: 0.7em;
+}
+
+.info-box span {
+    display: block;
+    font-size: 1.1em;
+    font-weight: bold;
+}
+
+/* ===== የተጠራ ቁጥር ማሳያ (ማዕከላዊ አቀማመጥ) ===== */
+#called-number-display-wrapper {
+    text-align: center;
+    margin: 5px 0;
+}
+
+.called-number-display {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #12121e;
+    background-color: #ffc107; 
+    border-radius: 10px; 
+    padding: 5px 15px;
+    display: inline-block;
+    box-shadow: 0 0 8px rgba(255, 193, 7, 0.5);
+}
+
+/* ===== ዋናው የጨዋታ አካል (Dual Grid Layout) ===== */
+.game-area-grid {
+    display: flex;
+    gap: 8px;
+    flex-grow: 1; 
+    overflow-y: hidden;
+    min-height: 450px; 
+}
+
+.left-master-grid {
+    flex: 1.5; 
+    display: flex;
+    flex-direction: column;
+}
+
+.right-player-area {
+    flex: 1; 
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+/* Master Grid (5x15 Layout - No Scrolling) */
+.master-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(15, minmax(1px, 1fr)); 
+    gap: 2px;
+    background-color: #2c293d;
+    padding: 5px;
+    border-radius: 8px;
+    height: 100%; 
+    overflow: hidden; 
+}
+
+.master-cell {
+    background-color: #1f1c2c;
+    color: #fff;
+    padding: 3px 0; 
+    border-radius: 3px;
+    text-align: center;
+    font-size: 0.65em; 
+    font-weight: 600;
+}
+
+.master-cell.called {
+    background-color: #dc3545;
+    color: white;
+}
+
+/* ===== 5x5 የተጫዋች ካርድ ===== */
+.card-box {
+    background-color: #2c293d;
+    border-radius: 8px;
+    padding: 5px; 
+    margin-top: 5px;
+}
+
+.card-info {
+    font-size: 0.8em;
+    color: #bbb;
+}
+.card-info span {
+    color: #ffc107;
+    font-weight: bold;
+}
+
+.card-header {
+    color: #bbb;
+    font-size: 0.8em;
+    margin-bottom: 5px;
+}
+.card-header span {
+    color: #ffc107;
+    font-weight: bold;
+}
+
+.bingo-card-player {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr); 
+    grid-template-rows: repeat(6, 1fr);
+    gap: 1px;
+    background-color: #12121e;
+    border-radius: 5px;
+    overflow: hidden;
+    width: 100%; 
+    height: auto;
+}
+
+.header {
+    background-color: #6f42c1; 
+    color: white;
+    font-weight: bold;
+    padding: 3px 0; 
+    text-align: center;
+    font-size: 0.8em;
+}
+
+.cell {
+    background-color: #1f1c2c;
+    color: #f4f4f9;
+    padding: 4px 0; 
+    text-align: center;
+    font-size: 0.75em; 
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.cell.marked {
+    background-color: #ff8c00 !important; 
+    color: #12121e;
+}
+
+.cell.free-space {
+    background-color: #ffeb3b;
+    color: #12121e;
+}
+
+.status-indicator {
+    text-align: center;
+    margin-top: 10px;
+    font-size: 0.9em;
+}
+
+.status-connected {
+    color: #28a745; 
+    font-weight: bold;
+}
+
+/* ===== የታችኛው አዝራሮች (Action Buttons) ===== */
+.action-buttons {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 5px; 
+    margin-bottom: 5px; 
+}
+
+.btn {
+    border: none;
+    padding: 10px 5px;
+    border-radius: 8px;
+    font-size: 0.9em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    width: 100%;
+}
+
+.exit-btn {
+    background-color: #d63333;
+    color: white;
+}
+
+.refresh-btn {
+    background-color: #6c757d;
+    color: white;
+}
+
+.reserve-btn {
+    background-color: #ffc107;
+    color: #12121e;
+}
