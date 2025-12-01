@@ -1,11 +1,10 @@
-// game.js (FULL - Master Grid Fix እና Display Fixes)
+// game.js (FULL - Master Grid Logic በትክክል ተስተካክሏል)
 
 const CARD_SIZE = 5; 
 const LETTERS = ['B', 'I', 'N', 'G', 'O'];
 
 const masterGridElement = document.getElementById('master-grid');
 const playerCardElement = document.getElementById('player-bingo-card');
-// ማስተካከያ 1: በትክክለኛው ID ('called-number-display') እንጠራዋለን
 const calledNumberDisplay = document.getElementById('called-number-display'); 
 const calledHistoryArea = document.getElementById('called-history');
 
@@ -25,13 +24,18 @@ const STATIC_CARD_POOL = {
     }
 };
 
-// 1. 75 ቁጥሮችን Master Grid ላይ የሚሞላ ተግባር (በአምድ ተስተካክሏል!)
+// ==========================================================
+// 1. 75 ቁጥሮችን Master Grid ላይ የሚሞላ ተግባር (በመጨረሻ ተስተካክሏል!)
+// ==========================================================
 function renderMasterGrid() {
     masterGridElement.innerHTML = '';
     
+    // ለ 5 ዓምዶች እና ለ 15 ረድፎች በ ROW-FIRST ቅደም ተከተል እንሞላለን
     for (let i = 0; i < 75; i++) {
-        const rowIndex = i % 15;
-        const colIndex = Math.floor(i / 15);
+        // የረድፍ ኢንዴክስ (0-14)
+        const rowIndex = Math.floor(i / 5);
+        // የአምድ ኢንዴክስ (0-4)
+        const colIndex = i % 5;
         
         // ትክክለኛው የቢንጎ ቁጥር ስሌት: (የረድፍ ቁጥር + 1) + (የአምድ መጀመሪያ ቁጥር)
         const number = (rowIndex + 1) + (colIndex * 15);
@@ -121,7 +125,7 @@ function callNumber() {
         masterCell.classList.add('called');
     }
     
-    // ማስተካከያ 2: የአሁኑን ቁጥር በትክክል አሳይ
+    // የአሁኑን ቁጥር በትክክል አሳይ
     calledNumberDisplay.textContent = labeledNumber; 
     
     // ታሪክ ውስጥ መዝግብ (History Chip)
