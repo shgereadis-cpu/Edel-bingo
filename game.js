@@ -20,6 +20,7 @@ const STATIC_CARD_POOL = {
 // 1. 75 ቁጥሮችን Master Grid ላይ የሚሞላ ተግባር
 function renderMasterGrid() {
     masterGridElement.innerHTML = '';
+    // የ Master Grid 5 columns እና 15 rows እንዲይዝ (1-75)
     for (let i = 1; i <= 75; i++) {
         const cell = document.createElement('div');
         cell.textContent = i;
@@ -57,7 +58,8 @@ function renderPlayerCard(cardId) {
                 cell.classList.add('free-space', 'marked');
             } else {
                 cell.dataset.number = number;
-                cell.addEventListener('click', () => markNumber(cell));
+                // የተጫዋቹ ካርድ ላይ ቁጥር ማርክ የማድረግ ሎጂክ
+                cell.addEventListener('click', () => markNumber(cell)); 
             }
             playerCardElement.appendChild(cell);
         });
@@ -73,10 +75,28 @@ function markNumber(cell) {
 // 4. ገጹ ሲከፈት ሁለቱንም ግሪዶች ማስጀመር
 document.addEventListener('DOMContentLoaded', () => {
     renderMasterGrid();
-    renderPlayerCard('card-44'); // ለሙከራ card-44 ን እንጭናለን
+    renderPlayerCard('card-44'); 
 
     // የ Telegram WebAppን ማስጀመር (Exit button ን ለመጠቀም)
     if (window.Telegram && window.Telegram.WebApp) {
         window.Telegram.WebApp.ready();
     }
+    
+    // ለ Exit አዝራር ክሊክ ሎጅክ
+    document.getElementById('exit-btn').addEventListener('click', () => {
+        if (window.Telegram && window.Telegram.WebApp) {
+            window.Telegram.WebApp.close();
+        }
+    });
+
+    // ለ Refresh አዝራር (የጊዜያዊ ማስጠንቀቂያ)
+    document.getElementById('refresh-btn').addEventListener('click', () => {
+        alert('Data refreshing...');
+        window.location.reload();
+    });
+
+    // ለ BINGO/Reserve አዝራር
+    document.getElementById('reserve-btn').addEventListener('click', () => {
+        alert('BINGO/Reserve button clicked. (Needs Backend logic)');
+    });
 });
