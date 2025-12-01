@@ -17,33 +17,49 @@
             </div>
         </div>
 
-        <div id="called-number-display-wrapper">
-            <div id="called-number-display" class="called-number-display">B-11</div>
-        </div>
-        
-
-        <div class="game-area-grid">
-            <div class="left-master-grid">
-                <div id="master-grid" class="master-grid">
+        <div class="game-area-grid-new">
+            <div class="master-grid-container">
+                <div class="master-header">
+                    <span class="master-header-cell B">B</span>
+                    <span class="master-header-cell I">I</span>
+                    <span class="master-header-cell N">N</span>
+                    <span class="master-header-cell G">G</span>
+                    <span class="master-header-cell O">O</span>
+                </div>
+                <div id="master-grid" class="master-grid-5x15">
                     </div>
             </div>
 
-            <div class="right-player-area">
-                <div class="card-info">Your Cards <span id="card-count">1</span></div>
-                <div class="card-box">
-                    <div class="card-header">Card Number <span id="card-id">44</span></div>
-                    <div id="player-bingo-card" class="bingo-card-player">
-                        </div>
+            <div class="right-stacked-content">
+                
+                <div id="called-number-display" class="called-number-circle">B-11</div>
+                
+                <div id="called-history" class="called-history-area">
+                    <span class="history-chip B">B-4</span>
+                    <span class="history-chip I">I-23</span>
+                    <span class="history-chip B">B-11</span>
+                    <span class="history-chip N">N-42</span>
                 </div>
                 
+                <div class="player-card-container">
+                    <div class="card-info">Your Cards <span id="card-count">1</span></div>
+                    <div class="card-box">
+                        <div class="card-header">Card Number <span id="card-id">44</span></div>
+                        <div id="player-bingo-card" class="bingo-card-player">
+                            </div>
+                    </div>
+                </div>
+
                 <div class="status-indicator">Bingo <span id="bingo-status" class="status-connected">Connected</span></div>
+
+                <button id="central-bingo-btn" class="btn central-bingo-btn">Bingo</button>
+
             </div>
         </div>
 
-        <div class="action-buttons">
+        <div class="action-buttons-bottom">
             <button id="exit-btn" class="btn exit-btn">Exit</button>
             <button id="refresh-btn" class="btn refresh-btn">Refresh</button>
-            <button id="reserve-btn" class="btn reserve-btn">Reserve</button>
         </div>
     </div>
 
