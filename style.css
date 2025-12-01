@@ -1,0 +1,228 @@
+/* style.css */
+
+/* Viewport እና አጠቃላይ ገጽታ (ለ Telegram Mini App የተስተካከለ) */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #12121e; /* ጥቁር የጀርባ ቀለም */
+    color: #f4f4f9;
+    margin: 0;
+    padding: 0;
+    width: 100%; /* ሙሉ ስክሪን */
+    height: 100vh; /* ሙሉ ቁመት */
+    box-sizing: border-box;
+    overflow-x: hidden; /* የጎን ስክሮልን መከልከል */
+}
+
+.main-wrapper {
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* ===== ራስጌ (Wallet / Stake) ===== */
+.top-info-bar {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.logo-placeholder {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #ffc107;
+}
+
+.title-text {
+    font-size: 1.2em;
+    font-weight: 600;
+    margin-right: auto; /* የተቀረውን ቦታ እንዲይዝ */
+}
+
+.info-group {
+    display: flex;
+    gap: 10px;
+}
+
+.info-box {
+    background-color: #ffc107; /* ቢጫ/ብርቱካናማ */
+    color: #12121e;
+    border-radius: 12px;
+    padding: 5px 12px;
+    font-size: 0.8em;
+    font-weight: 600;
+    text-align: center;
+    line-height: 1.2;
+}
+
+.info-box span {
+    display: block;
+    font-size: 1.1em;
+    font-weight: bold;
+}
+
+/* ===== ዋናው የጨዋታ አካል (Dual Grid Layout) ===== */
+.game-area-grid {
+    display: flex;
+    gap: 10px;
+    flex-grow: 1; /* ቦታውን ሙሉ በሙሉ እንዲይዝ */
+}
+
+.left-master-grid {
+    flex: 1.5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.right-player-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 75 ቁጥሮች Master Grid */
+.master-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 5px;
+    background-color: #2c293d;
+    padding: 10px;
+    border-radius: 10px;
+    overflow-y: scroll; /* አስፈላጊ ከሆነ ስክሮል እንዲያደርግ */
+    max-height: 50vh; /* ለሞባይል የተገደበ ቁመት */
+}
+
+.master-cell {
+    background-color: #1f1c2c;
+    color: #fff;
+    padding: 8px 0;
+    border-radius: 5px;
+    text-align: center;
+    font-size: 0.9em;
+    font-weight: 600;
+    transition: background-color 0.2s;
+}
+
+.master-cell.called {
+    background-color: #dc3545; /* ቀይ: የተጠራ ቁጥር */
+    color: white;
+}
+
+/* የአሁኑ የተጠራ ቁጥር ማሳያ */
+.called-number-display {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #12121e;
+    background-color: #ffeb3b;
+    border-radius: 50px;
+    padding: 5px 15px;
+    margin-bottom: 10px;
+}
+
+/* ===== 5x5 የተጫዋች ካርድ ===== */
+.card-box {
+    background-color: #2c293d;
+    border-radius: 10px;
+    padding: 10px;
+    margin-top: 5px;
+}
+
+.card-header {
+    color: #bbb;
+    font-size: 0.8em;
+    margin-bottom: 5px;
+}
+.card-header span {
+    color: #ffc107;
+    font-weight: bold;
+}
+
+.bingo-card-player {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(6, 1fr);
+    gap: 1px;
+    background-color: #12121e;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.header {
+    background-color: #6f42c1; /* ሐምራዊ ራስጌ */
+    color: white;
+    font-weight: bold;
+    padding: 5px 0;
+    text-align: center;
+    font-size: 0.9em;
+}
+
+.cell {
+    background-color: #1f1c2c;
+    color: #f4f4f9;
+    padding: 8px 0;
+    text-align: center;
+    font-size: 0.9em;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* የተመረጠ/ማርክ የተደረገ ቁጥር */
+.cell.marked {
+    background-color: #ff8c00 !important; /* ብርቱካናማ */
+    color: #12121e;
+}
+
+.cell.free-space {
+    background-color: #ffeb3b; /* ቢጫ */
+    color: #12121e;
+}
+
+.status-indicator {
+    text-align: center;
+    margin-top: 10px;
+    font-size: 0.9em;
+}
+
+.status-connected {
+    color: #28a745; /* አረንጓዴ */
+    font-weight: bold;
+}
+
+/* ===== የታችኛው አዝራሮች (Action Buttons) ===== */
+.action-buttons {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 15px;
+    margin-bottom: 10px;
+}
+
+.btn {
+    border: none;
+    padding: 15px 5px;
+    border-radius: 12px;
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    width: 100%;
+}
+
+.exit-btn {
+    background-color: #dc3545; /* ቀይ */
+    color: white;
+}
+
+.refresh-btn {
+    background-color: #6c757d; /* ግራጫ */
+    color: white;
+}
+
+.reserve-btn {
+    background-color: #ffc107; /* ቢጫ/ብርቱካናማ */
+    color: #12121e;
+}

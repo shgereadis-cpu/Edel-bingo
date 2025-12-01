@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Chewatabingo Mini App</title>
+    <link rel="stylesheet" href="style.css"> 
+</head>
+<body>
+    <div class="main-wrapper">
+        <div class="top-info-bar">
+            <div class="logo-placeholder">C</div>
+            <div class="title-text">ጨዋታ ቢንጎ</div>
+            <div class="info-group">
+                <div class="info-box wallet-box">Wallet <span id="wallet-amount">107 ETB</span></div>
+                <div class="info-box stake-box">Stake <span id="stake-amount">10 ETB</span></div>
+            </div>
+        </div>
+
+        <div class="game-area-grid">
+            <div class="left-master-grid">
+                <div id="called-number-display" class="called-number-display">B-11</div>
+                <div id="master-grid" class="master-grid">
+                    </div>
+            </div>
+
+            <div class="right-player-area">
+                <div class="card-info">Your Cards <span id="card-count">1</span></div>
+                <div class="card-box">
+                    <div class="card-header">Card Number <span id="card-id">44</span></div>
+                    <div id="player-bingo-card" class="bingo-card-player">
+                        </div>
+                </div>
+                
+                <div class="status-indicator">Bingo <span id="bingo-status" class="status-connected">Connected</span></div>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button id="exit-btn" class="btn exit-btn">Exit</button>
+            <button id="refresh-btn" class="btn refresh-btn">Refresh</button>
+            <button id="reserve-btn" class="btn reserve-btn">Reserve</button>
+        </div>
+    </div>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>
