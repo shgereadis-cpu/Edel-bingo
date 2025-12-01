@@ -1,17 +1,18 @@
-// game.js (ሙሉ እና የተሻሻለ - የቁጥር ጥሪ Logic ታክሏል)
+// game.js (FULL - Master Grid Fix እና Display Fixes)
 
 const CARD_SIZE = 5; 
 const LETTERS = ['B', 'I', 'N', 'G', 'O'];
 
 const masterGridElement = document.getElementById('master-grid');
 const playerCardElement = document.getElementById('player-bingo-card');
-const calledNumberDisplay = document.getElementById('called-number-circle'); // የተጠራውን ክብ ማሳያ
+// ማስተካከያ 1: በትክክለኛው ID ('called-number-display') እንጠራዋለን
+const calledNumberDisplay = document.getElementById('called-number-display'); 
 const calledHistoryArea = document.getElementById('called-history');
 
 // የጨዋታ ሁኔታን እና የተጠሩ ቁጥሮችን የሚይዝ ግሎባል ተለዋዋጮች
 let calledNumbers = [];
 let gameInterval;
-const MAX_HISTORY_CHIPS = 10; // በታሪክ ላይ የሚታዩት ከፍተኛው የቺፕስ ብዛት
+const MAX_HISTORY_CHIPS = 10; 
 
 // ቋሚ የቢንጎ ካርዶች ክምችት (Pool) - ለሙከራ
 const STATIC_CARD_POOL = {
@@ -24,14 +25,21 @@ const STATIC_CARD_POOL = {
     }
 };
 
-// 1. 75 ቁጥሮችን Master Grid ላይ የሚሞላ ተግባር
+// 1. 75 ቁጥሮችን Master Grid ላይ የሚሞላ ተግባር (በአምድ ተስተካክሏል!)
 function renderMasterGrid() {
     masterGridElement.innerHTML = '';
-    for (let i = 1; i <= 75; i++) {
+    
+    for (let i = 0; i < 75; i++) {
+        const rowIndex = i % 15;
+        const colIndex = Math.floor(i / 15);
+        
+        // ትክክለኛው የቢንጎ ቁጥር ስሌት: (የረድፍ ቁጥር + 1) + (የአምድ መጀመሪያ ቁጥር)
+        const number = (rowIndex + 1) + (colIndex * 15);
+
         const cell = document.createElement('div');
-        cell.textContent = i;
+        cell.textContent = number;
         cell.classList.add('master-cell');
-        cell.dataset.number = i;
+        cell.dataset.number = number;
         masterGridElement.appendChild(cell);
     }
 }
@@ -43,7 +51,6 @@ function renderPlayerCard(cardId) {
     
     playerCardElement.innerHTML = '';
     
-    // ፊደሎቹን (Headers) ማሳየት
     LETTERS.forEach(letter => {
         const header = document.createElement('div');
         header.textContent = letter;
@@ -51,7 +58,6 @@ function renderPlayerCard(cardId) {
         playerCardElement.appendChild(header);
     });
 
-    // ቁጥሮችን መሙላት
     for (let row = 0; row < CARD_SIZE; row++) {
         LETTERS.forEach(letter => {
             const cell = document.createElement('div');
@@ -65,7 +71,6 @@ function renderPlayerCard(cardId) {
             } else {
                 cell.dataset.number = number;
                 cell.dataset.letter = letter; 
-                // የተጫዋቹ ካርድ ላይ ቁጥር ማርክ የማድረግ ሎጂክ
                 cell.addEventListener('click', () => toggleMark(cell)); 
             }
             playerCardElement.appendChild(cell);
@@ -76,17 +81,12 @@ function renderPlayerCard(cardId) {
 // 3. በተጫዋች ካርድ ላይ ምልክት (Mark) ለማድረግ
 function toggleMark(cell) {
     const num = parseInt(cell.dataset.number);
-
-    // ቁጥሩ ከተጠራ ብቻ ምልክት እንዲደረግ መፍቀድ
     if (calledNumbers.includes(num)) {
         cell.classList.toggle('marked');
-    } else {
-        // ቁጥሩ እስኪጠራ መጠበቅ እንዳለበት ማስጠንቀቂያ
-        // alert(`ቁጥር ${num} እስካሁን አልተጠራም!`); // ይህንን መልእክት አጠፋን
     }
 }
 
-// 4. ቁጥሮችን በቢንጎ ደንብ የሚመድብ ተግባር (1-15:B, 16-30:I, etc.)
+// 4. ቁጥሮችን በቢንጎ ደንብ የሚመድብ ተግባር 
 function getBingoLabel(number) {
     if (number >= 1 && number <= 15) return 'B';
     if (number >= 16 && number <= 30) return 'I';
@@ -100,7 +100,6 @@ function getBingoLabel(number) {
 function callNumber() {
     let newNumber;
     
-    // እስካሁን ያልተጠራ ቁጥር በዘፈቀደ መምረጥ
     do {
         newNumber = Math.floor(Math.random() * 75) + 1; 
     } while (calledNumbers.includes(newNumber) && calledNumbers.length < 75);
@@ -114,7 +113,6 @@ function callNumber() {
     const label = getBingoLabel(newNumber);
     const labeledNumber = `${label}-${newNumber}`;
 
-    // ቁጥሩን መዝግብ
     calledNumbers.push(newNumber);
     
     // Master Grid ላይ ምልክት አድርግ
@@ -123,28 +121,20 @@ function callNumber() {
         masterCell.classList.add('called');
     }
     
-    // የአሁኑን ቁጥር አሳይ
-    calledNumberDisplay.textContent = labeledNumber;
+    // ማስተካከያ 2: የአሁኑን ቁጥር በትክክል አሳይ
+    calledNumberDisplay.textContent = labeledNumber; 
     
     // ታሪክ ውስጥ መዝግብ (History Chip)
     const historyChip = document.createElement('span');
     historyChip.textContent = labeledNumber;
     historyChip.classList.add('history-chip', label);
     
-    // አዲሱን ቺፕ መጀመሪያ ላይ ጨምር
     calledHistoryArea.prepend(historyChip);
 
     // የቺፖችን ብዛት ተቆጣጠር
     if (calledHistoryArea.children.length > MAX_HISTORY_CHIPS) {
         calledHistoryArea.removeChild(calledHistoryArea.lastChild);
     }
-    
-    // Player Card ላይ አውቶማቲክ ማርክ ማድረግ (አዲስ ሎጂክ - አማራጭ)
-    const playerCells = document.querySelectorAll(`.cell[data-number="${newNumber}"]`);
-    playerCells.forEach(cell => {
-        // ቁጥሩ ከተጠራ በኋላ ተጫዋቹ ራሱ እንዲማርክ ይደረጋል (ለማለት ያህል)
-        // ወይም እዚህ ላይ cell.classList.add('called-match'); የሚል ሌላ ስታይል መጨመር ይቻላል
-    });
 }
 
 // 6. የጨዋታውን ቆጣሪ ማስጀመር
@@ -159,35 +149,28 @@ function startGameLoop() {
 // ገጹ ሲከፈት ሁለቱንም ግሪዶች ማስጀመር
 document.addEventListener('DOMContentLoaded', () => {
     renderMasterGrid();
-    renderPlayerCard('card-44'); // ለሙከራ card-44 ን እንጭናለን
+    renderPlayerCard('card-44'); 
 
-    // ጨዋታውን ወዲያውኑ ጀምር
     startGameLoop(); 
 
-    // የ Telegram WebAppን ማስጀመር (Exit button ን ለመጠቀም)
     if (window.Telegram && window.Telegram.WebApp) {
         window.Telegram.WebApp.ready();
     }
     
-    // ለ Exit አዝራር ክሊክ ሎጅክ
     document.getElementById('exit-btn').addEventListener('click', () => {
-        if (gameInterval) clearInterval(gameInterval); // ቆጣሪውን አስቁም
+        if (gameInterval) clearInterval(gameInterval); 
         if (window.Telegram && window.Telegram.WebApp) {
             window.Telegram.WebApp.close();
         }
     });
 
-    // ለ Refresh አዝራር
     document.getElementById('refresh-btn').addEventListener('click', () => {
-        if (gameInterval) clearInterval(gameInterval); // ቆጣሪውን አስቁም
-        // alert('Data refreshing...'); // ለማሳየት
+        if (gameInterval) clearInterval(gameInterval); 
         window.location.reload();
     });
 
-    // ለ BINGO አዝራር
     document.getElementById('central-bingo-btn').addEventListener('click', () => {
-        if (gameInterval) clearInterval(gameInterval); // ቆጣሪውን አስቁም
+        if (gameInterval) clearInterval(gameInterval); 
         alert('Bingo button clicked. Checking card... (Logic to be implemented)');
-        // እውነተኛ የቢንጎ ማረጋገጫ Logic እዚህ ጋር ይመጣል
     });
 });
