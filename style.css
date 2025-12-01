@@ -1,0 +1,128 @@
+/* style.css (ከፍተኛ የመጠን ማስተካከያ - Non-Scrolling) */
+
+/* አጠቃላይ ገጽታ ቅንጅት */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #12121e;
+    color: #f4f4f9;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100vh;
+    box-sizing: border-box;
+    overflow: hidden; /* ምንም ስክሮል እንዳይኖር */
+}
+
+.main-wrapper {
+    width: 100%;
+    padding: 5px; /* አነስተኛ Padding */
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    height: 100vh; /* ሙሉ ቁመት */
+}
+
+/* ===== ራስጌ (Wallet / Stake) ===== */
+.top-info-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 5px; /* Margin ቀንሷል */
+}
+
+/* ... (የተቀረው የ Info Bar ኮድ ተመሳሳይ ነው) ... */
+
+
+/* ===== አዲስ: የተጠራ ቁጥር ማሳያ (ማዕከላዊ አቀማመጥ) ===== */
+#called-number-display-wrapper {
+    text-align: center;
+    margin: 5px 0; /* Margin ቀንሷል */
+}
+
+.called-number-display {
+    font-size: 1.2em; /* መጠን ቀንሷል */
+    font-weight: bold;
+    color: #12121e;
+    background-color: #ffc107;
+    border-radius: 10px; 
+    padding: 3px 10px; /* Padding ቀንሷል */
+    display: inline-block;
+    box-shadow: 0 0 8px rgba(255, 193, 7, 0.5);
+}
+
+/* ===== ዋናው የጨዋታ አካል (Dual Grid Layout) ===== */
+.game-area-grid {
+    display: flex;
+    gap: 5px; /* Gap ቀንሷል */
+    flex-grow: 1; 
+    margin-bottom: 5px; /* Margin ቀንሷል */
+}
+
+/* Master Grid (5x15 Layout - No Scrolling) */
+.master-grid {
+    display: grid;
+    /* 5 columns */
+    grid-template-columns: repeat(5, 1fr); 
+    /* 15 rows for 75 numbers */
+    grid-template-rows: repeat(15, 1fr); 
+    gap: 2px; /* Gap ቀንሷል */
+    background-color: #2c293d;
+    padding: 5px; /* Padding ቀንሷል */
+    border-radius: 8px;
+    height: 100%; /* ሙሉውን ቁመት እንዲይዝ */
+    overflow: hidden; /* ስክሮል የለም */
+}
+
+.master-cell {
+    background-color: #1f1c2c;
+    color: #fff;
+    padding: 4px 0; /* Padding በከፍተኛ ሁኔታ ቀንሷል */
+    border-radius: 3px;
+    text-align: center;
+    font-size: 0.7em; /* ፊደል መጠን ቀንሷል */
+    font-weight: 600;
+}
+
+/* ===== 5x5 የተጫዋች ካርድ (የቦታ ቁጠባ) ===== */
+.card-box {
+    background-color: #2c293d;
+    border-radius: 8px;
+    padding: 5px; /* Padding ቀንሷል */
+    margin-top: 5px;
+}
+
+.bingo-card-player {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(6, 1fr);
+    gap: 1px;
+    background-color: #12121e;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.header {
+    padding: 3px 0; /* Padding ቀንሷል */
+    font-size: 0.8em;
+}
+
+.cell {
+    padding: 4px 0; /* Padding ቀንሷል */
+    font-size: 0.8em;
+}
+
+
+/* ===== የታችኛው አዝራሮች (Action Buttons) ===== */
+.action-buttons {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 5px; /* Gap ቀንሷል */
+    margin-top: 5px; /* Margin ቀንሷል */
+    margin-bottom: 5px; /* Margin ቀንሷል */
+}
+
+.btn {
+    padding: 10px 5px; /* Padding ቀንሷል */
+    border-radius: 8px;
+    font-size: 0.9em; /* መጠን ቀንሷል */
+}
