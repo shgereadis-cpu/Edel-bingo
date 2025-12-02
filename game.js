@@ -1,4 +1,4 @@
-// game.js (FULL - Bingo Verification Logic ታክሏል)
+// game.js (FULL - Bingo Verification Logic ስህተቱ ታርሟል)
 
 const CARD_SIZE = 5; 
 const LETTERS = ['B', 'I', 'N', 'G', 'O'];
@@ -31,12 +31,10 @@ const STATIC_CARD_POOL = {
 function renderMasterGrid() {
     masterGridElement.innerHTML = '';
     
-    // በ ROW-FIRST ቅደም ተከተል እንሞላለን
     for (let i = 0; i < 75; i++) {
         const rowIndex = Math.floor(i / 5);
         const colIndex = i % 5;
         
-        // ትክክለኛው የቢንጎ ቁጥር ስሌት: B:1-15, I:16-30, N:31-45, G:46-60, O:61-75
         const number = (rowIndex + 1) + (colIndex * 15);
 
         const cell = document.createElement('div');
@@ -86,7 +84,6 @@ function renderPlayerCard(cardId) {
 // 3. በተጫዋች ካርድ ላይ ምልክት (Mark) ለማድረግ
 function toggleMark(cell) {
     const num = parseInt(cell.dataset.number);
-    // ከተጠራ ብቻ ማርክ እንዲደረግ
     if (calledNumbers.includes(num)) {
         cell.classList.toggle('marked');
     }
@@ -121,7 +118,6 @@ function callNumber() {
 
     calledNumbers.push(newNumber);
     
-    // Master Grid ላይ ምልክት አድርግ
     const masterCell = document.querySelector(`.master-cell[data-number="${newNumber}"]`);
     if (masterCell) {
         masterCell.classList.add('called');
@@ -129,42 +125,41 @@ function callNumber() {
     
     calledNumberDisplay.textContent = labeledNumber; 
     
-    // ታሪክ ውስጥ መዝግብ
     const historyChip = document.createElement('span');
     historyChip.textContent = labeledNumber;
     historyChip.classList.add('history-chip', label);
     
     calledHistoryArea.prepend(historyChip);
 
-    // የቺፖችን ብዛት ተቆጣጠር
     if (calledHistoryArea.children.length > MAX_HISTORY_CHIPS) {
         calledHistoryArea.removeChild(calledHistoryArea.lastChild);
     }
 }
 
-// 6. የማሸነፊያ (Bingo) ቼክ Logic
+// ==========================================================
+// 6. የማሸነፊያ (Bingo) ቼክ Logic (ተስተካክሏል!)
+// ==========================================================
 function checkBingo() {
-    // ሁሉንም የካርድ ሴሎች በ 5x5 ድርድር ውስጥ ማግኘት
+    // በትክክል 25ቱን የውሂብ ሴሎች ብቻ እንሰበስባለን
     const cells = playerCardElement.querySelectorAll('.cell');
     const markedStatus = [];
 
-    // የካርድ ሴሎችን ወደ 5x5 boolean ድርድር መለወጥ
-    cells.forEach((cell, index) => {
-        // የመጀመሪያዎቹ 5 Headers ስለሆኑ ከ6ኛው ሴል (index 5) እንጀምራለን
-        if (index >= 5) {
-            const actualIndex = index - 5;
-            const row = Math.floor(actualIndex / CARD_SIZE);
-            const col = actualIndex % CARD_SIZE;
-
-            if (!markedStatus[row]) markedStatus[row] = [];
-            // true ከሆነ marked ነው ማለት ነው
-            markedStatus[row][col] = cell.classList.contains('marked'); 
+    // 25 ሴሎችን ወደ 5x5 boolean ድርድር መለወጥ
+    for (let i = 0; i < CARD_SIZE; i++) { // Row (0 to 4)
+        markedStatus[i] = [];
+        for (let j = 0; j < CARD_SIZE; j++) { // Column (0 to 4)
+            
+            // የሴል ኢንዴክስ (0 እስከ 24)
+            const cellIndex = (i * CARD_SIZE) + j;
+            
+            // marked መሆኑን ማረጋገጥ
+            markedStatus[i][j] = cells[cellIndex].classList.contains('marked');
         }
-    });
-
+    }
+    
     // 1. አግድም (Rows) ቼክ
     for (let i = 0; i < CARD_SIZE; i++) {
-        if (markedStatus[i] && markedStatus[i].every(status => status)) {
+        if (markedStatus[i].every(status => status)) {
             return true;
         }
     }
@@ -173,7 +168,7 @@ function checkBingo() {
     for (let j = 0; j < CARD_SIZE; j++) {
         let isWinningColumn = true;
         for (let i = 0; i < CARD_SIZE; i++) {
-            if (!markedStatus[i] || !markedStatus[i][j]) {
+            if (!markedStatus[i][j]) {
                 isWinningColumn = false;
                 break;
             }
@@ -187,11 +182,11 @@ function checkBingo() {
 
     for (let i = 0; i < CARD_SIZE; i++) {
         // ዋናው ሰያፍ (i, i)
-        if (!markedStatus[i] || !markedStatus[i][i]) {
+        if (!markedStatus[i][i]) {
             diag1 = false;
         }
         // ሁለተኛው ሰያፍ (i, 4-i)
-        if (!markedStatus[i] || !markedStatus[i][CARD_SIZE - 1 - i]) {
+        if (!markedStatus[i][CARD_SIZE - 1 - i]) {
             diag2 = false;
         }
     }
@@ -203,7 +198,6 @@ function checkBingo() {
 function startGameLoop() {
     if (gameInterval) clearInterval(gameInterval);
     
-    // በየ 3 ሰከንዱ ቁጥር ይጠራ
     gameInterval = setInterval(callNumber, 3000); 
 }
 
