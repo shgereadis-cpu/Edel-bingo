@@ -1,15 +1,19 @@
 /* =========================================================
-   አጠቃላይ አቀማመጥ እና ቁመት ማስተካከያ (ስክሮልን ለመከላከል)
+   አጠቃላይ አቀማመጥ እና ቁመት ማስተካከያ (ዋናው ስክሮልን ለመከላከል)
    ========================================================= */
-body {
-    font-family: sans-serif;
+html, body {
     margin: 0;
     padding: 0;
+    /* ሙሉ ቁመቱን እንዲይዝ ማስገደድ */
+    height: 100%; 
+    overflow: hidden; /* ዋናው ስክሮልን ይከለክላል */
+}
+
+body {
+    font-family: sans-serif;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh; /* ቁመቱን ሙሉ Viewport እንዲይዝ ያደርጋል */
-    overflow: hidden; /* ዋናው ስክሮልን ይከለክላል */
     background-color: #1a1a2e;
     color: #ecf0f1; 
 }
@@ -17,12 +21,11 @@ body {
 /* የስክሪን መያዣ */
 .screen {
     width: 100%;
-    max-width: 900px; /* ለትልቅ ማሳያ ማስተካከያ */
-    height: 100%;
-    padding: 20px;
+    max-width: 900px; 
+    height: 100%; 
+    padding: 10px; 
     box-sizing: border-box;
     display: none;
-    transition: opacity 0.5s;
     background-color: #2c3e50;
     border-radius: 10px;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
@@ -30,27 +33,27 @@ body {
 
 .screen.active {
     display: block;
-    opacity: 1;
 }
 
 /* =========================================================
-   ACTIVE GAME SCREEN (ዋና አቀማመጥ)
+   ACTIVE GAME SCREEN (አሁን ያለው መፍትሄ: Single Column Scrollable)
    ========================================================= */
 #active-game-screen {
     padding: 10px;
-    overflow-y: hidden; 
+    height: 100%; 
+    /* ትልቁ ስክሪን ስክሮል የሚደረግ ነው */
+    overflow-y: auto; 
 }
 
-/* ዋናው የጨዋታ አቀማመጥ (ባለሁለት አምድ) */
+/* ዋናው የጨዋታ አቀማመጥ - አሁን ነጠላ አምድ (Stacking) ነው */
 #game-area {
-    display: grid;
-    grid-template-columns: 2fr 1.3fr; /* ግራ ትልቅ፣ ቀኝ ትንሽ */
+    display: flex;
+    flex-direction: column; /* አቀባዊ አቀማመጥ */
     gap: 15px;
-    /* ከ Header እና Footer በኋላ የቀረውን ቦታ እንዲይዝ */
-    height: calc(100vh - 40px); 
+    height: auto; 
 }
 
-/* ------------------ የግራ አምድ: Call Board ------------------ */
+/* ------------------ የጥሪ ሰሌዳ - አሁን Scrollable ነው ------------------ */
 #call-board {
     padding: 10px;
     border-radius: 8px;
@@ -58,8 +61,9 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    height: 100%; 
-    overflow-y: auto; /* አስፈላጊ ከሆነ የውስጥ ስክሮል */
+    /* ከፍተኛ ቁመትን መገደብ (በሞባይል ላይ ብዙ ቦታ እንዳይወስድ) */
+    max-height: 250px; 
+    overflow-y: auto; /* አሁን የውስጥ ስክሮል አለው */
 }
 #call-board h3 { margin-top: 0; margin-bottom: 10px; }
 .call-board-grid {
@@ -83,13 +87,13 @@ body {
     box-shadow: 0 0 5px #e74c3c;
 }
 
-/* ------------------ የቀኝ አምድ: Game Details ------------------ */
+/* ------------------ የቀኝ አምድ: Game Details - አሁን ከ Call Board ስር ነው ------------------ */
 #game-details {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    height: 100%;
-    overflow-y: auto; /* አስፈላጊ ከሆነ የውስጥ ስክሮል */
+    height: auto;
+    overflow-y: visible; 
 }
 
 /* Wallet እና Stake Display */
@@ -154,7 +158,7 @@ body {
     background-color: #34495e;
     padding: 10px;
     border-radius: 8px;
-    flex-grow: 1; /* ቦታ ሲኖር እንዲያድግ */
+    flex-grow: 0; 
 }
 #player-card h3, #player-card h4 { margin: 5px 0; text-align: center; }
 #player-card table {
@@ -214,8 +218,4 @@ body {
 #lobby-screen h1 { color: #f1c40f; text-align: center; margin-bottom: 30px; }
 #lobby-screen button { width: 100%; padding: 15px; background-color: #f39c12; color: #1a1a2e; border: none; border-radius: 5px; }
 #card-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; max-height: 400px; overflow-y: auto; padding: 10px 0; }
-.mock-bingo-card { background-color: #34495e; border: 3px solid #34495e; border-radius: 8px; padding: 10px; cursor: pointer; }
-.mock-bingo-card.selected { border-color: #2ecc71; box-shadow: 0 0 10px #2ecc71; }
-#card-selection-screen button { width: 48%; padding: 10px; margin-top: 15px; border: none; border-radius: 5px; }
-#start-game-btn { background-color: #2ecc71; color: white; }
-#back-to-lobby-btn { background-color: #7f8c8d; color: white; }
+.mock-bingo-card { background-color: #34495e; border: 3px solid #34495e; border-
