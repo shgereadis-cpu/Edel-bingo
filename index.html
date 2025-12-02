@@ -2,62 +2,79 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Chewatabingo Mini App</title>
-    <link rel="stylesheet" href="style.css"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChewataBingo</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="main-wrapper">
-        <div class="top-info-bar">
-            <div class="logo-placeholder">C</div>
-            <div class="title-text">ጨዋታ ቢንጎ</div>
-            <div class="info-group">
-                <div class="info-box wallet-box">Wallet <span id="wallet-amount">107 ETB</span></div>
-                <div class="info-box stake-box">Stake <span id="stake-amount">10 ETB</span></div>
+
+    <div id="lobby-screen" class="screen active">
+        <h1>ChewataBingo</h1>
+        <p>ጨዋታውን ለመቀላቀል ዝግጁ ነዎት?</p>
+        <button id="join-btn">ጨዋታውን ይቀላቀሉ</button>
+        </div>
+
+    <div id="card-selection-screen" class="screen hidden">
+        <h2>የቢንጎ ካርድዎን ይምረጡ</h2>
+        
+        <div id="card-list">
+            <p>ካርዶቹ እየተጫኑ ነው... እባክዎ ይጠብቁ።</p>
+        </div>
+
+        <button id="start-game-btn" disabled>ጨዋታውን ጀምር</button>
+        <button id="back-to-lobby-btn">← ወደ ሎቢ ተመለስ</button>
+    </div>
+
+    <div id="active-game-screen" class="screen hidden">
+        
+        <div id="game-info">
+            <span id="wallet-balance">Wallet: 107 ETB</span>
+            <span id="stake-amount">Stake: 10 ETB</span>
+        </div>
+
+        <div id="game-area">
+            
+            <div id="call-board">
+                <h3>የተጠሩ ቁጥሮች</h3>
+            </div>
+
+            <div id="game-details">
+                
+                <div id="called-number">
+                    <p>የመጨረሻ ጥሪ:</p>
+                    <span id="current-call">B-4</span>
+                </div>
+
+                <div id="player-card">
+                    <h3>የእርስዎ ካርድ #<span id="card-number">44</span></h3>
+                    <table>
+                        <thead>
+                            <tr><th>B</th><th>I</th><th>N</th><th>G</th><th>O</th></tr>
+                        </thead>
+                        <tbody id="bingo-card-grid">
+                            </tbody>
+                    </table>
+                </div>
+                
+                <div id="recent-calls">
+                    <h4>ቅርብ ጊዜ ጥሪዎች</h4>
+                    <ul id="recent-calls-list">
+                        </ul>
+                </div>
+
+                <div id="game-status">
+                    <p id="connection-status">Bingo Connected</p>
+                    <button id="bingo-btn">Bingo</button>
+                </div>
             </div>
         </div>
 
-        <div class="game-area-grid-new">
-            <div class="master-grid-container">
-                <div class="master-header">
-                    <span class="master-header-cell B">B</span>
-                    <span class="master-header-cell I">I</span>
-                    <span class="master-header-cell N">N</span>
-                    <span class="master-header-cell G">G</span>
-                    <span class="master-header-cell O">O</span>
-                </div>
-                <div id="master-grid" class="master-grid-5x15">
-                    </div>
-            </div>
-
-            <div class="right-stacked-content">
-                
-                <div id="called-number-display" class="called-number-circle">G-52</div>
-                
-                <div id="called-history" class="called-history-area">
-                    </div>
-                
-                <div class="player-card-container">
-                    <div class="card-box">
-                        <div class="card-header">Card Number <span id="card-id">44</span></div>
-                        <div id="player-bingo-card" class="bingo-card-player">
-                            </div>
-                    </div>
-                </div>
-
-                <div class="status-indicator">Bingo <span id="bingo-status" class="status-connected">Connected</span></div>
-                <button id="central-bingo-btn" class="btn central-bingo-btn">Bingo</button>
-
-            </div>
-        </div>
-
-        <div class="action-buttons-bottom">
-            <button id="exit-btn" class="btn exit-btn">Exit</button>
-            <button id="refresh-btn" class="btn refresh-btn">Refresh</button>
+        <div id="game-controls">
+            <button id="exit-btn">← Exit</button>
+            <button id="refresh-btn">↻ Refresh</button>
         </div>
     </div>
 
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="game.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
