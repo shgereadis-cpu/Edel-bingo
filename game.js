@@ -3,19 +3,26 @@
 // =========================================================
 
 const BINGO_LETTERS = ['B', 'I', 'N', 'G', 'O'];
-const CARD_SELECTION_TIME = 60; // 60 ሰከንድ
-let currentCardSelectionTimer = null;
+const CALL_INTERVAL_MS = 4000; // ቁጥር የሚጠራበት ፍጥነት (በ ሚሊ ሰከንድ)
+const CARD_SELECTION_TIME = 60; // 60 ሰከንድ ለካርድ ምርጫ
+const ROUND_END_PAUSE_MS = 5000; // 5 ሰከንድ አሸናፊውን ለማሳየት
 
+// የገንዘብ አያያዝ ተለዋዋጮች
+let walletBalance = 100; 
+const stakeAmount = 10; 
+const winPayout = 50; 
+
+// የጨዋታ ሁኔታ ተለዋዋጮች
 let calledNumbers = [];
 let availableNumbers = [];
-let numberCallInterval = null;
+let numberCallInterval = null; 
+let currentCardSelectionTimer = null;
 let selectedCardId = null;
-let selectedCardData = null; // የተመረጠው ካርድ 5x5 አሬይ ዳታ
+let selectedCardData = null; 
 let allGeneratedCards = {}; 
-let isRoundInProgress = false; // አዲስ ዙር እየተጫወተ መሆኑን የሚጠቁም
+let isRoundInProgress = false; 
 
 // የHTML ኤለመንቶች ማጣቀሻዎች
-// ... (ያለፈው ኮድ)
 const lobbyScreen = document.getElementById('lobby-screen');
 const cardSelectionScreen = document.getElementById('card-selection-screen');
 const activeGameScreen = document.getElementById('active-game-screen');
@@ -29,7 +36,7 @@ const cardGridBody = document.getElementById('bingo-card-grid');
 const currentCallDisplay = document.getElementById('current-call');
 const recentCallsList = document.getElementById('recent-calls-list');
 
-// አዲስ ኤለመንት ለጊዜ ቆጣሪ
+// አዲስ ኤለመንት ለጊዜ ቆጣሪ (በHTML ውስጥ ስላልነበር እዚሁ ፈጠርነው)
 const timerDisplay = document.createElement('h3');
 timerDisplay.id = 'timer-display';
 timerDisplay.style.color = '#e74c3c';
@@ -50,7 +57,6 @@ function getRandomNumbers(min, max) {
 }
 
 function generateBingoCard() {
-    // ... (የ generateBingoCard ተግባር ሳይቀየር ይቀጥላል)
     const card = {
         B: getRandomNumbers(1, 15),
         I: getRandomNumbers(16, 30),
@@ -81,6 +87,7 @@ function loadDynamicCards(numCards = 100) {
     cardListDiv.innerHTML = 'ካርዶች እየተፈጠሩ ነው...';
     allGeneratedCards = {};
     selectedCardId = null;
+    selectedCardData = null; // የድሮ ካርድ መረጃ ማፅዳት
     startGameBtn.disabled = true;
 
     for (let i = 1; i <= numCards; i++) {
@@ -119,65 +126,31 @@ function selectCard(cardElement, cardId, cardData) {
     selectedCardId = cardId;
     selectedCardData = cardData;
     startGameBtn.disabled = false;
-    document.getElementById('timer-display').textContent = `Card #${cardId} Selected. Waiting for game start...`;
-    
-    // ካርድ ሲመረጥም ጊዜ ቆጣሪው ይቀጥላል
+    timerDisplay.textContent = `Card #${cardId} Selected. Waiting for game start... (${CARD_SELECTION_TIME} sec left)`;
 }
+
 
 // =========================================================
-// III. የጊዜ አያያዝ እና ፍሰት (Timer and Flow Management)
+// III. የጨዋታ አፈፃፀም እና የገንዘብ አያያዝ
 // =========================================================
 
-function startCardSelectionTimer() {
-    let timeLeft = CARD_SELECTION_TIME;
-    timerDisplay.textContent = `የካርድ መምረጫ ጊዜ: ${timeLeft} ሰከንድ`;
-    
-    if (currentCardSelectionTimer) clearInterval(currentCardSelectionTimer);
+function showScreen(screenToShow) {
+    [lobbyScreen, cardSelectionScreen, activeGameScreen].forEach(screen => {
+        screen.classList.remove('active');
+        screen.classList.add('hidden');
+    });
 
-    currentCardSelectionTimer = setInterval(() => {
-        timeLeft--;
-        timerDisplay.textContent = `የካርድ መምረጫ ጊዜ: ${timeLeft} ሰከንድ`;
-        
-        if (timeLeft <= 0) {
-            clearInterval(currentCardSelectionTimer);
-            currentCardSelectionTimer = null;
-            
-            // ሁሉም ተጫዋቾች እንዲጀምሩ የሚያደርግ የጋራ ተግባር
-            if (selectedCardData) {
-                // ካርድ የመረጡ ተጫዋቾች ወዲያውኑ ወደ ጨዋታው ይገባሉ
-                showScreen(activeGameScreen);
-                startGame();
-            } else {
-                // ካርድ ያልመረጡ ተጫዋቾች ወደ ሎቢው ይመለሳሉ
-                alert("ምንም ካርድ አልመረጡም! ወደ ሎቢው ተመልሰዋል።");
-                showScreen(lobbyScreen);
-            }
-        }
-    }, 1000);
+    screenToShow.classList.remove('hidden');
+    screenToShow.classList.add('active');
 }
 
-function startGame() {
-    // ዳግም ማስጀመር
-    calledNumbers = [];
-    availableNumbers = Array.from({ length: 75 }, (_, i) => i + 1);
-    document.getElementById('recent-calls-list').innerHTML = '';
-    bingoBtn.disabled = false; // ቢንጎ ቁልፍን ማንቃት
-
-    if (numberCallInterval) clearInterval(numberCallInterval);
-    
-    populatePlayerCard(selectedCardId, selectedCardData);
-
-    currentCallDisplay.textContent = 'ጨዋታው ተጀምሯል! ቁጥሮች በራስ-ሰር ይጠራሉ...';
-    document.getElementById('connection-status').textContent = 'Game Round Active';
-    
-    isRoundInProgress = true;
-    
-    // ማዕከላዊው ስርዓት ቁጥሩን በየ 4 ሰከንዱ መጥራት ይጀምራል
-    numberCallInterval = setInterval(callNextNumber, 4000); 
+/** የ Wallet እና Stake ማሳያዎችን በUI ላይ ያዘምናል */
+function updateWalletDisplay() {
+    document.getElementById('wallet-balance').textContent = `Wallet: ${walletBalance} ETB`;
+    document.getElementById('stake-amount').textContent = `Stake: ${stakeAmount} ETB`;
 }
 
-// ... (callNextNumber, populatePlayerCard, createCallBoard, markPlayerCell, checkBingo ተግባራት ሳይቀየሩ ይቀጥላሉ)
-// ... (callNextNumber, populatePlayerCard, createCallBoard, markPlayerCell, checkBingo ተግባራት ሳይቀየሩ ይቀጥላሉ)
+/** የካርድ ፍርግርግን በHTML ውስጥ መሙላት */
 function populatePlayerCard(cardId, cardData) {
     document.getElementById('card-number').textContent = cardId;
     cardGridBody.innerHTML = '';
@@ -207,11 +180,13 @@ function populatePlayerCard(cardId, cardData) {
         cardGridBody.appendChild(tr);
     });
 }
+
+/** የጥሪ ሰሌዳውን መፍጠር (ከ1-75) */
 function createCallBoard() {
     const callBoard = document.getElementById('call-board');
     let grid = callBoard.querySelector('.call-board-grid');
-    if (grid) { // ዳግም እንዳይፈጠር መፈተሽ
-        grid.innerHTML = '';
+    if (grid) { 
+        grid.innerHTML = ''; // ያለፉ ጥሪዎችን ለማፅዳት
     } else {
         grid = document.createElement('div');
         grid.className = 'call-board-grid';
@@ -227,31 +202,96 @@ function createCallBoard() {
         grid.appendChild(numberDiv);
     }
 }
+
+/** ተጫዋቹ ቁጥር ሲነካ ምልክት ያደርጋል */
 function markPlayerCell(cellElement, cellData) {
     const num = cellData.value;
+    
     if (!calledNumbers.includes(num)) {
         alert(`ቁጥር ${num} ገና አልተጠራም!`);
         return;
     }
+    
     cellData.marked = !cellData.marked;
     cellElement.classList.toggle('marked', cellData.marked);
-    console.log(`ካርድ ላይ ያለ ቁጥር ${num} ተለወጠ።`);
 }
-function checkBingo() {
-    if (!selectedCardData || selectedCardData.length === 0) return false;
-    const BINGO_SIZE = 5;
-    const isMarked = (r, c) => selectedCardData[r][c].marked; 
 
-    for (let r = 0; r < BINGO_SIZE; r++) { if (selectedCardData[r].every((_, c) => isMarked(r, c))) return true; }
-    for (let c = 0; c < BINGO_SIZE; c++) { if (selectedCardData.every((_, r) => isMarked(r, c))) return true; }
-    if (Array.from({ length: BINGO_SIZE }, (_, i) => i).every(i => isMarked(i, i))) return true;
-    if (Array.from({ length: BINGO_SIZE }, (_, i) => i).every(i => isMarked(i, BINGO_SIZE - 1 - i))) return true;
+// =========================================================
+// IV. የጨዋታ ዑደት መቆጣጠሪያ (Game Loop Controllers)
+// =========================================================
 
-    return false;
+function startCardSelectionTimer() {
+    let timeLeft = CARD_SELECTION_TIME;
+    timerDisplay.textContent = `የካርድ መምረጫ ጊዜ: ${timeLeft} ሰከንድ`;
+    
+    if (currentCardSelectionTimer) clearInterval(currentCardSelectionTimer);
+
+    currentCardSelectionTimer = setInterval(() => {
+        timeLeft--;
+        timerDisplay.textContent = `የካርድ መምረጫ ጊዜ: ${timeLeft} ሰከንድ`;
+        
+        if (selectedCardId) {
+             timerDisplay.textContent = `Card #${selectedCardId} Selected. Time left: ${timeLeft} sec`;
+        }
+
+        if (timeLeft <= 0) {
+            clearInterval(currentCardSelectionTimer);
+            currentCardSelectionTimer = null;
+            
+            if (selectedCardData) {
+                showScreen(activeGameScreen);
+                startGame();
+            } else {
+                alert("ምንም ካርድ አልመረጡም! ወደ ሎቢው ተመልሰዋል።");
+                showScreen(lobbyScreen);
+            }
+        }
+    }, 1000);
 }
+
+function startGame() {
+    // 1. የገንዘብ ማረጋገጫ እና ውርርድ
+    if (walletBalance < stakeAmount) {
+        alert("በቂ ገንዘብ የለዎትም! እባክዎ አካውንትዎን ይሙሉ።");
+        showScreen(lobbyScreen);
+        return;
+    }
+    
+    walletBalance -= stakeAmount;
+    updateWalletDisplay();
+    
+    // 2. ዳግም ማስጀመር
+    calledNumbers = [];
+    availableNumbers = Array.from({ length: 75 }, (_, i) => i + 1);
+    recentCallsList.innerHTML = '';
+    bingoBtn.disabled = false;
+    if (numberCallInterval) clearInterval(numberCallInterval);
+    
+    // 3. የካርዱን ምልክቶች ማፅዳት (Markings Reset)
+    if (selectedCardData) {
+        selectedCardData.forEach(row => {
+            row.forEach(cell => {
+                if (!cell.isFree) {
+                    cell.marked = false;
+                }
+            });
+        });
+    }
+
+    // 4. UI ዝግጅት እና የቁጥር ጥሪ
+    createCallBoard();
+    populatePlayerCard(selectedCardId, selectedCardData);
+
+    currentCallDisplay.textContent = 'ጨዋታው ተጀምሯል! ቁጥሮች በራስ-ሰር ይጠራሉ...';
+    document.getElementById('connection-status').textContent = `Calling Every ${CALL_INTERVAL_MS/1000} Seconds`; 
+    
+    isRoundInProgress = true;
+    numberCallInterval = setInterval(callNextNumber, CALL_INTERVAL_MS); 
+}
+
 function callNextNumber() {
     if (!isRoundInProgress) {
-        clearInterval(numberCallInterval);
+        if (numberCallInterval) clearInterval(numberCallInterval);
         return;
     }
 
@@ -278,28 +318,42 @@ function callNextNumber() {
     li.textContent = callText;
     recentCallsList.prepend(li);
 }
-// ... (የቀረው ኮድ)
+
+function checkBingo() {
+    if (!selectedCardData || selectedCardData.length === 0) return false;
+    const BINGO_SIZE = 5;
+    const isMarked = (r, c) => selectedCardData[r][c].marked; 
+
+    // Rows, Columns, Diagonals Check...
+    for (let r = 0; r < BINGO_SIZE; r++) { if (selectedCardData[r].every((_, c) => isMarked(r, c))) return true; }
+    for (let c = 0; c < BINGO_SIZE; c++) { if (selectedCardData.every((_, r) => isMarked(r, c))) return true; }
+    if (Array.from({ length: BINGO_SIZE }, (_, i) => i).every(i => isMarked(i, i))) return true;
+    if (Array.from({ length: BINGO_SIZE }, (_, i) => i).every(i => isMarked(i, BINGO_SIZE - 1 - i))) return true;
+
+    return false;
+}
 
 /** የጨዋታውን ዙር ይዘጋል */
 function endGame(isWinner, message) {
     if (numberCallInterval) clearInterval(numberCallInterval);
     isRoundInProgress = false;
-    bingoBtn.disabled = true; // ተጨማሪ ቢንጎ ጥሪዎችን መከልከል
+    bingoBtn.disabled = true;
+    
+    // የገንዘብ ክፍያ
+    if (isWinner) {
+        walletBalance += winPayout;
+        updateWalletDisplay();
+        alert(`🎉🎉🎉 BINGO! ${winPayout} ETB አሸንፈዋል! አዲስ ቀሪ ሂሳብ: ${walletBalance} ETB`);
+    }
     
     document.getElementById('connection-status').textContent = isWinner ? 'Winner Declared!' : 'Round Ended';
-    
-    if (isWinner) {
-        alert(`🏆🏆🏆 አሸናፊነት ተረጋግጧል! ካርድ #${selectedCardId} አሸንፏል።`);
-    } else {
-        alert(`😞 ${message}`);
-    }
     
     // ከ 5 ሰከንድ በኋላ ወደ ካርድ መምረጫ ክፍል ይመልሳል
     setTimeout(() => {
         showScreen(cardSelectionScreen);
-        loadDynamicCards(100); // አዲስ ዙር ለመጀመር
-        startCardSelectionTimer(); // አዲስ ሰአት ቆጣሪ ይጀምራል
-    }, 5000); 
+        loadDynamicCards(100); 
+        startCardSelectionTimer();
+    }, ROUND_END_PAUSE_MS); 
 }
 
 function handleBingoClick() {
@@ -309,7 +363,6 @@ function handleBingoClick() {
     }
     
     if (checkBingo()) {
-        // የራስዎ ካርድ አሸናፊ መሆኑን ማረጋገጥ
         endGame(true, "በቅፅበት ተረጋግጧል!");
     } else {
         alert('❌ ቢንጎ አልተሞላም! መጫወትዎን ይቀጥሉ.');
@@ -318,25 +371,28 @@ function handleBingoClick() {
 
 
 // =========================================================
-// IX. የፕሮግራም ማስጀመሪያ
+// IX. የፕሮግራም ማስጀመሪያ (Entry Point)
 // =========================================================
 
 document.addEventListener('DOMContentLoaded', () => {
     createCallBoard();
+    updateWalletDisplay(); // የ Wallet ማሳያውን መጀመሪያ ላይ መጀመር
 
     // የክስተት አድማጮችን ማያያዝ
     joinBtn.addEventListener('click', () => {
         showScreen(cardSelectionScreen);
         loadDynamicCards(100);
-        startCardSelectionTimer(); // ጊዜ ቆጣሪውን መጀመር
-        startGameBtn.disabled = true; // ካርድ ሳይመርጡ መጀመር አይቻልም
+        startCardSelectionTimer();
     });
 
-    // startGameBtn አዝራር አሁን ቆጣሪው ሲያልቅ በሚሰራው ተግባር ውስጥ ነው ያለው
-    // ነገር ግን ለተጫዋች ምቹነት ካርድ ከመረጡ በኋላ ቢጫኑት ወደ ጨዋታው እንዲገቡ እናደርጋለን
+    backToLobbyBtn.addEventListener('click', () => {
+        if (currentCardSelectionTimer) clearInterval(currentCardSelectionTimer);
+        showScreen(lobbyScreen);
+    });
+    
+    // ቆጣሪውን አቋርጦ ወደ ጨዋታው ለመግባት (አንድ ካርድ ከተመረጠ)
     startGameBtn.addEventListener('click', () => {
         if (selectedCardId) {
-            // ቆጣሪው እንዳይጠብቅ እና ወዲያውኑ ወደ ጨዋታው እንዲገባ
             if (currentCardSelectionTimer) {
                 clearInterval(currentCardSelectionTimer);
                 currentCardSelectionTimer = null;
@@ -350,17 +406,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     bingoBtn.addEventListener('click', handleBingoClick);
     
-    // Exit ሲጫን ወደ ሎቢው መመለስ
     exitBtn.addEventListener('click', () => {
          if (numberCallInterval) clearInterval(numberCallInterval);
          if (currentCardSelectionTimer) clearInterval(currentCardSelectionTimer);
          showScreen(lobbyScreen);
-         alert('ከጨዋታው ወጥተዋል!');
-    });
-    
-    backToLobbyBtn.addEventListener('click', () => {
-        if (currentCardSelectionTimer) clearInterval(currentCardSelectionTimer);
-        showScreen(lobbyScreen);
+         alert(`ከጨዋታው ወጥተዋል! ቀሪ ሂሳብዎ: ${walletBalance} ETB`);
     });
 
     showScreen(lobbyScreen);
