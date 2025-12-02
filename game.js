@@ -3,8 +3,9 @@
 // =========================================================
 
 const BINGO_LETTERS = ['B', 'I', 'N', 'G', 'O'];
-const CALL_INTERVAL_MS = 4000; // ቁጥር የሚጠራበት ፍጥነት
-const CARD_SELECTION_TIME = 60; // ለካርድ ምርጫ 60 ሰከንድ
+const CALL_INTERVAL_MS = 4000; 
+// 🔑 ማስተካከያ: የካርድ መምረጫ ጊዜ ወደ 10 ሰከንድ ተቀይሯል።
+const CARD_SELECTION_TIME = 10; 
 const ROUND_END_PAUSE_MS = 5000; 
 
 // የገንዘብ አያያዝ ተለዋዋጮች
@@ -37,7 +38,7 @@ const currentCallDisplay = document.getElementById('current-call');
 const recentCallsList = document.getElementById('recent-calls-list');
 const timerDisplay = document.getElementById('timer-display');
 
-// አዲስ Modal Elements
+// Modal Elements
 const viewBoardBtn = document.getElementById('view-board-btn');
 const callBoardModal = document.getElementById('call-board-modal');
 const closeBoardBtn = document.getElementById('close-board-btn');
@@ -104,17 +105,8 @@ function loadDynamicCards(numCards = 100) {
         cardEl.className = 'mock-bingo-card';
         cardEl.id = `card-${i}`;
 
-        // ለቅድመ እይታ የተወሰኑ ቁጥሮችን ማሳየት
-        let numberText = '';
-        BINGO_LETTERS.forEach((letter, c) => {
-             const sampleNumbers = cardData.map(row => row[c].value).filter(v => typeof v === 'number').slice(0, 3).join(', ');
-             numberText += `${letter}: ${sampleNumbers} | `;
-        });
-
-        cardEl.innerHTML = `
-            <h4>ካርድ #${i}</h4>
-            <p>${numberText.substring(0, 60)}...</p>
-        `;
+        // 🔑 ማስተካከያ: በቦክስ ውስጥ የካርድ ቁጥር ብቻ እንዲታይ ተደርጓል።
+        cardEl.textContent = i;
         
         cardEl.addEventListener('click', () => {
             selectCard(cardEl, i, cardData);
@@ -445,7 +437,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Modal Controls
     viewBoardBtn.addEventListener('click', () => {
         callBoardModal.classList.remove('hidden');
-        // አዲሱ ቁጥር በሞዳሉ ውስጥ እንዲታይ ሰሌዳውን እንደገና ይፈጥራል
         createCallBoard(); 
     });
 
