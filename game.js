@@ -7,12 +7,19 @@ const activeGameScreen = document.getElementById('active-game-screen');
 const joinBtn = document.getElementById('join-btn');
 const startGameBtn = document.getElementById('start-game-btn');
 const backToLobbyBtn = document.getElementById('back-to-lobby-btn');
+const bingoBtn = document.getElementById('bingo-btn');
+const exitBtn = document.getElementById('exit-btn');
+const refreshBtn = document.getElementById('refresh-btn');
 
-// 3. የስክሪን መቆጣጠሪያ ተግባር
-/**
- * አንድን ስክሪን አክቲቭ ሲያደርግ ሌሎቹን ደግሞ ይደብቃል።
- * @param {HTMLElement} screenToShow - አክቲቭ የሚሆነው ስክሪን ኤለመንት
- */
+// 3. የጨዋታ ሁኔታ ተለዋዋጮች
+const BINGO_LETTERS = ['B', 'I', 'N', 'G', 'O'];
+let calledNumbers = []; // የተጠሩ ቁጥሮችን ይይዛል (ለምሳሌ: [5, 17, 39, ...])
+let availableNumbers = Array.from({ length: 75 }, (_, i) => i + 1); // 1 እስከ 75
+let numberCallInterval = null; // የቁጥር ጥሪ ቆጣሪውን (Interval) ይይዛል
+let selectedCardId = null; 
+let selectedCardData = []; // የተመረጠው ካርድ ቁጥሮች
+
+// 4. የስክሪን መቆጣጠሪያ ተግባር
 function showScreen(screenToShow) {
     // ሁሉንም ስክሪኖች ደብቅ
     [lobbyScreen, cardSelectionScreen, activeGameScreen].forEach(screen => {
@@ -25,122 +32,114 @@ function showScreen(screenToShow) {
     screenToShow.classList.add('active');
 }
 
-// 4. የኢቨንት ሊስነርስ (Event Listeners) - በአዝራሮች ላይ የሚደረጉ ድርጊቶችን መቆጣጠር
-
-// ከሎቢ ወደ ካርድ ምርጫ ገጽ ይሂዱ
-joinBtn.addEventListener('click', () => {
-    showScreen(cardSelectionScreen);
-    // TODO: ካርዶችን የመጫን (Load Cards) ተግባርን እዚህ እንጨምራለን
-    console.log("Card Selection Screen ተከፍቷል");
-    
-    // ለሙከራ ካርዶች እስኪጫኑ ድረስ start-game-btn ን አሰናክል
-    startGameBtn.disabled = true;
-    
-    // ለጊዜው ካርዶችን ለመፍጠር የሚያስችል Mock ተግባር እንጠራ
-    loadMockCards(); 
-});
-
-// ከካርድ ምርጫ ወደ ሎቢ ገጽ ተመለስ
-backToLobbyBtn.addEventListener('click', () => {
-    showScreen(lobbyScreen);
-    console.log("ወደ Lobby ተመልሷል");
-});
-
-// የካርድ ምርጫ ከተጠናቀቀ በኋላ ወደ Active Game ገጽ ይሂዱ
-startGameBtn.addEventListener('click', () => {
-    // TODO: የተመረጠውን ካርድ ይዞ ወደ ጨዋታው የመግባት ሎጂክ እዚህ ይገባል
-    showScreen(activeGameScreen);
-    console.log("Active Game Screen ተከፍቷል");
-    
-    // TODO: የቢንጎ ፍርግርግ እና የጥሪ ሰሌዳውን የመፍጠር ተግባር እንጨምራለን
-    createCallBoard();
-    populatePlayerCard(selectedCard); // የተመረጠውን ካርድ ይጠቀማል
-});
-
-
-// 5. Mock Card Data and Selection Logic (ለጊዜው ለመሞከር)
-let selectedCard = null;
-
-function loadMockCards() {
-    const cardList = document.getElementById('card-list');
-    cardList.innerHTML = ''; // ያለውን ያጥፋ
-
-    // የካርዶች ምሳሌ ዝርዝር
-    const mockCards = [
-        { id: 101, numbers: "B:1,14,2,3,15 | I:16,29,28,30,17 | N:37,39,FREE,36,33 | G:60,54,51,48,52 | O:75,73,68,62,65" },
-        { id: 102, numbers: "B:5,10,13,7,9 | I:20,18,25,27,24 | N:40,35,FREE,31,45 | G:46,59,50,56,49 | O:61,70,72,67,64" },
-        { id: 103, numbers: "B:6,8,12,11,4 | I:21,23,26,19,22 | N:44,38,FREE,42,41 | G:58,53,47,55,57 | O:63,66,74,71,69" }
-    ];
-
-    mockCards.forEach(card => {
-        const cardDiv = document.createElement('div');
-        cardDiv.className = 'mock-bingo-card';
-        cardDiv.id = `card-${card.id}`;
-        cardDiv.innerHTML = `
-            <h4>ካርድ #${card.id}</h4>
-            <p>${card.numbers}</p>
-        `;
-
-        cardDiv.addEventListener('click', () => {
-            selectCard(cardDiv, card.id);
-        });
-
-        cardList.appendChild(cardDiv);
-    });
-    
-    // ካርዶች ከታዩ በኋላ startGameBtn ን አክቲቭ እናድርግ (ለሙከራ)
-    startGameBtn.disabled = false;
-}
-
-function selectCard(cardElement, cardId) {
-    // ሁሉንም ካርዶች መመረጥ የለባቸውም አድርግ
-    document.querySelectorAll('.mock-bingo-card').forEach(card => {
-        card.classList.remove('selected');
-    });
-
-    // አዲሱን ካርድ ምረጥ
-    cardElement.classList.add('selected');
-    selectedCard = cardId;
-    console.log(`ካርድ #${cardId} ተመርጧል`);
-}
-
-
-// 6. የቢንጎ ፍርግርግ እና Call Board የመፍጠር ተግባራት (Active Game Logic)
-const BINGO_LETTERS = ['B', 'I', 'N', 'G', 'O'];
-
-// የተመረጠውን ካርድ ወደ ፍርግርግ የመሙላት ተግባር
-function populatePlayerCard(cardId) {
-    const cardGridBody = document.getElementById('bingo-card-grid');
-    // እውነተኛ የካርድ ዳታ (ይህ በኋላ በአገልጋይ ዳታ ይተካል)
-    const cardData = [
+// 5. Mock Card Data and Selection Logic
+// የካርድ መረጃን በካርዱ ID መሰረት ለማግኘት
+const mockCardDataMap = {
+    // 5x5 ፍርግርግ
+    101: [
         [5, 17, 37, 60, 75],
         [4, 30, 39, 54, 73],
         [15, 29, 'FREE', 51, 68],
         [2, 28, 36, 48, 62],
         [3, 26, 33, 52, 65]
-    ];
-    
-    // የካርድ ቁጥር ማሳያውን አዘምን
-    document.getElementById('card-number').textContent = cardId || 'N/A';
-    
-    cardGridBody.innerHTML = ''; // የነበረውን አጥፋ
+    ],
+    102: [
+        [1, 16, 31, 46, 61],
+        [6, 20, 40, 50, 70],
+        [10, 25, 'FREE', 59, 72],
+        [14, 27, 43, 49, 64],
+        [8, 22, 35, 53, 67]
+    ]
+    // ሌሎች ካርዶች እዚህ ሊጨመሩ ይችላሉ
+};
 
-    cardData.forEach(row => {
+function loadMockCards() {
+    const cardList = document.getElementById('card-list');
+    cardList.innerHTML = ''; 
+    selectedCardId = null; // ምርጫን ዳግም አስጀምር
+    startGameBtn.disabled = true;
+
+    Object.keys(mockCardDataMap).forEach(id => {
+        const cardData = mockCardDataMap[id];
+        const cardDiv = document.createElement('div');
+        cardDiv.className = 'mock-bingo-card';
+        cardDiv.id = `card-${id}`;
+        
+        let numberText = '';
+        BINGO_LETTERS.forEach((letter, i) => {
+            numberText += `${letter}: ${cardData.map(row => row[i]).join(', ')} | `;
+        });
+
+        cardDiv.innerHTML = `
+            <h4>ካርድ #${id}</h4>
+            <p>${numberText}</p>
+        `;
+
+        cardDiv.addEventListener('click', () => {
+            selectCard(cardDiv, id);
+        });
+
+        cardList.appendChild(cardDiv);
+    });
+}
+
+function selectCard(cardElement, cardId) {
+    document.querySelectorAll('.mock-bingo-card').forEach(card => {
+        card.classList.remove('selected');
+    });
+
+    cardElement.classList.add('selected');
+    selectedCardId = parseInt(cardId);
+    selectedCardData = mockCardDataMap[selectedCardId];
+    startGameBtn.disabled = false;
+    console.log(`ካርድ #${selectedCardId} ተመርጧል`);
+}
+
+
+// 6. የቢንጎ ፍርግርግ እና Call Board የመፍጠር ተግባራት
+function populatePlayerCard(cardId, cardData) {
+    const cardGridBody = document.getElementById('bingo-card-grid');
+    document.getElementById('card-number').textContent = cardId || 'N/A';
+    cardGridBody.innerHTML = ''; 
+
+    cardData.forEach((row, rowIndex) => {
         const tr = document.createElement('tr');
-        row.forEach(cellValue => {
+        row.forEach((cellValue, colIndex) => {
             const td = document.createElement('td');
             td.textContent = cellValue;
+            
+            // የነጻውን ቦታ ምልክት ያድርግ
             if (cellValue === 'FREE') {
-                td.classList.add('free-space');
+                td.classList.add('free-space', 'marked'); // ነጻ ቦታ ሁልጊዜ ምልክት ይደረግበታል
             }
-            // እያንዳንዱን ቁጥር በመታወቂያ ለይተን እናስቀምጠዋለን (ለምሳሌ: cell-B-5, cell-N-FREE)
-            let letter = BINGO_LETTERS[row.indexOf(cellValue)];
+
+            let letter = BINGO_LETTERS[colIndex];
             td.id = `cell-${letter}-${cellValue}`; 
+            
+            // ተጫዋቹ እንዲነካው የሚያስችል event listener
+            if (cellValue !== 'FREE') {
+                td.addEventListener('click', () => markPlayerCell(td, cellValue));
+            }
             
             tr.appendChild(td);
         });
         cardGridBody.appendChild(tr);
     });
+}
+
+// 🖲️ ተጫዋቹ ቁጥሩን ሲነካ ምልክት ያደርጋል
+function markPlayerCell(cellElement, cellValue) {
+    const num = parseInt(cellValue);
+    
+    // 1. ቁጥሩ አስቀድሞ ተጠርቶ እንደሆነ ያረጋግጣል
+    if (!calledNumbers.includes(num)) {
+        alert(`ቁጥር ${num} ገና አልተጠራም!`);
+        return;
+    }
+    
+    // 2. ምልክት የማድረግ ወይም የማንሳት ተግባር
+    cellElement.classList.toggle('marked');
+    console.log(`ካርድ ላይ ያለ ቁጥር ${num} ተለወጠ።`);
 }
 
 // የጥሪ ሰሌዳውን (Call Board) የመፍጠር ተግባር (1-75)
@@ -154,16 +153,10 @@ function createCallBoard() {
     for (let i = 1; i <= 75; i++) {
         const numberDiv = document.createElement('div');
         numberDiv.textContent = i;
-        numberDiv.className = 'call-number';
         
-        // የቢንጎ ፊደል ለመጨመር
-        let letter = '';
-        if (i <= 15) letter = 'B';
-        else if (i <= 30) letter = 'I';
-        else if (i <= 45) letter = 'N';
-        else if (i <= 60) letter = 'G';
-        else letter = 'O';
+        let letter = BINGO_LETTERS[Math.floor((i - 1) / 15)];
 
+        numberDiv.className = 'call-number';
         numberDiv.id = `call-num-${letter}-${i}`;
         
         grid.appendChild(numberDiv);
@@ -171,6 +164,134 @@ function createCallBoard() {
     
     callBoard.appendChild(grid);
 }
+
+
+// 7. ዋናው የጨዋታ ሎጂክ
+function startGame() {
+    // የጨዋታ ሁኔታን ዳግም አስጀምር
+    calledNumbers = [];
+    availableNumbers = Array.from({ length: 75 }, (_, i) => i + 1);
+    document.getElementById('current-call').textContent = 'BINGO!';
+    document.getElementById('recent-calls-list').innerHTML = '';
+    
+    // Call Board እና Player Card ፍርግርጎችን ፈጥሩ
+    createCallBoard();
+    populatePlayerCard(selectedCardId, selectedCardData);
+
+    // የቁጥር ጥሪውን ጀምር (በየ3 ሰከንዱ)
+    numberCallInterval = setInterval(callNextNumber, 3000);
+    console.log("ጨዋታው ተጀምሯል!");
+}
+
+function callNextNumber() {
+    if (availableNumbers.length === 0) {
+        clearInterval(numberCallInterval);
+        document.getElementById('current-call').textContent = 'ጨዋታው ተጠናቋል!';
+        alert('ሁሉም ቁጥሮች ተጠርተዋል። ማንም አላሸነፈም!');
+        return;
+    }
+
+    // በዘፈቀደ ቁጥር ይምረጡ
+    const randomIndex = Math.floor(Math.random() * availableNumbers.length);
+    const calledNum = availableNumbers.splice(randomIndex, 1)[0]; // ከAvailable ውስጥ አስወግድ
+    calledNumbers.push(calledNum);
+    
+    // የቢንጎ ፊደል ይፈልጉ
+    let letter = BINGO_LETTERS[Math.floor((calledNum - 1) / 15)];
+    const callText = `${letter}-${calledNum}`;
+
+    // 1. የአሁን ጥሪ ማሳያውን አዘምን
+    document.getElementById('current-call').textContent = callText;
+
+    // 2. Call Board ላይ ምልክት አድርግ
+    const callBoardCell = document.getElementById(`call-num-${letter}-${calledNum}`);
+    if (callBoardCell) {
+        callBoardCell.classList.add('called');
+    }
+
+    // 3. የቅርብ ጊዜ ጥሪዎች ዝርዝርን አዘምን
+    const recentCallsList = document.getElementById('recent-calls-list');
+    const li = document.createElement('li');
+    li.textContent = callText;
+    recentCallsList.prepend(li); // አዲሱን ቁጥር ከላይ አስቀምጥ
+}
+
+// 8. የቢንጎ መፈተሻ ተግባር
+function checkBingo() {
+    if (!selectedCardData || selectedCardData.length === 0) return;
+
+    const BINGO_SIZE = 5;
+    const isMarked = (r, c) => {
+        const cellValue = selectedCardData[r][c];
+        if (cellValue === 'FREE') return true;
+        
+        const cellId = document.getElementById(`cell-${BINGO_LETTERS[c]}-${cellValue}`);
+        return cellId && cellId.classList.contains('marked');
+    };
+
+    // 1. አግድም (Rows) ተፈተሽ
+    for (let r = 0; r < BINGO_SIZE; r++) {
+        if (selectedCardData[r].every((_, c) => isMarked(r, c))) {
+            return true;
+        }
+    }
+
+    // 2. አቀባዊ (Columns) ተፈተሽ
+    for (let c = 0; c < BINGO_SIZE; c++) {
+        if (selectedCardData.every((_, r) => isMarked(r, c))) {
+            return true;
+        }
+    }
+
+    // 3. ዲያግናል (Diagonals) ተፈተሽ
+    // ከላይ-ግራ ወደ ታች-ቀኝ
+    if (Array.from({ length: BINGO_SIZE }, (_, i) => i).every(i => isMarked(i, i))) {
+        return true;
+    }
+    // ከላይ-ቀኝ ወደ ታች-ግራ
+    if (Array.from({ length: BINGO_SIZE }, (_, i) => i).every(i => isMarked(i, BINGO_SIZE - 1 - i))) {
+        return true;
+    }
+
+    return false;
+}
+
+// 9. የኢቨንት ሊስነርስ (Event Listeners)
+joinBtn.addEventListener('click', () => {
+    showScreen(cardSelectionScreen);
+    loadMockCards();
+});
+
+backToLobbyBtn.addEventListener('click', () => {
+    showScreen(lobbyScreen);
+});
+
+startGameBtn.addEventListener('click', () => {
+    if (selectedCardId) {
+        showScreen(activeGameScreen);
+        startGame(); // ጨዋታውን ጀምር
+    } else {
+        alert("እባክዎ መጀመሪያ ካርድ ይምረጡ!");
+    }
+});
+
+// ቢንጎ ቁልፍ ሲጫን
+bingoBtn.addEventListener('click', () => {
+    if (checkBingo()) {
+        clearInterval(numberCallInterval);
+        document.getElementById('connection-status').textContent = 'WON!';
+        document.getElementById('connection-status').style.color = 'yellow';
+        alert('ቢንጎ! አሸንፈዋል!');
+    } else {
+        alert('ገና ቢንጎ አልሆነም! መፈተሽዎን ይቀጥሉ!');
+    }
+});
+
+exitBtn.addEventListener('click', () => {
+    clearInterval(numberCallInterval);
+    showScreen(lobbyScreen);
+    alert('ከጨዋታው ወጥተዋል!');
+});
 
 // መተግበሪያው ሲጀመር ሎቢውን አሳይ
 document.addEventListener('DOMContentLoaded', () => {
