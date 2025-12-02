@@ -60,6 +60,43 @@ button:disabled {
 }
 
 /*
+ * Card Selection Screen Styles
+ */
+#card-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.mock-bingo-card {
+    background-color: #f1c40f; /* ቢጫ እንደ Active Card */
+    color: #34495e;
+    padding: 10px;
+    border-radius: 5px;
+    width: 150px;
+    cursor: pointer;
+    border: 3px solid transparent;
+    transition: all 0.2s;
+    text-align: left;
+}
+
+.mock-bingo-card:hover {
+    border-color: #e67e22; /* ብርቱካንማ ድንበር ለሆቨር */
+}
+
+.mock-bingo-card.selected {
+    border-color: #2ecc71; /* አረንጓዴ ድንበር ለተመረጠ ካርድ */
+    box-shadow: 0 0 10px rgba(46, 204, 113, 0.8);
+}
+
+.mock-bingo-card h4, .mock-bingo-card p {
+    margin: 3px 0;
+    font-size: 12px;
+}
+
+/*
  * Active Game Screen Layout
  */
 #active-game-screen {
@@ -96,6 +133,31 @@ button:disabled {
     text-align: center;
     margin-top: 0;
     color: #ecf0f1;
+}
+
+/* Call Board Grid Structure */
+.call-board-grid {
+    display: grid;
+    grid-template-columns: repeat(15, 1fr); /* 15 አምዶች (1-75) */
+    gap: 3px;
+    margin-top: 10px;
+}
+
+.call-number {
+    background-color: #7f8c8d; /* ግራጫ ለ ያልተጠራ ቁጥር */
+    color: #2c3e50;
+    padding: 5px 0;
+    text-align: center;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: bold;
+    cursor: default;
+    transition: background-color 0.2s;
+}
+
+.call-number.called {
+    background-color: #e74c3c; /* ቀይ ለተጠራ ቁጥር */
+    color: white;
 }
 
 /*
@@ -156,11 +218,26 @@ button:disabled {
     font-weight: bold;
     font-size: 14px;
     width: 20%;
+    cursor: pointer;
+    transition: background-color 0.1s;
 }
 
 #player-card th {
     background-color: #c0392b; /* ቀይ ራስጌ */
     color: white;
+}
+
+/* የነጻውን ቦታ ስታይል */
+.free-space {
+    background-color: #3498db; /* ሰማያዊ */
+    color: white;
+}
+
+/* የተጫዋቹ የካርድ ቁጥር ሲመታ (Marked) የሚያገኘው ስታይል */
+#player-card td.marked {
+    background-color: #e74c3c; /* ቀይ ምልክት */
+    color: white;
+    transform: scale(1.05);
 }
 
 /*
@@ -182,6 +259,8 @@ button:disabled {
     padding: 5px;
     border-radius: 5px;
     min-height: 50px;
+    max-height: 120px;
+    overflow-y: auto; /* ዝርዝሩ ሲረዝም ለማንሸራተት */
 }
 
 #recent-calls-list li {
@@ -230,4 +309,3 @@ button:disabled {
     justify-content: space-between;
     margin-top: 15px;
 }
-/* ተጨማሪ የ Call Board ፍርግርግ/ቁጥር ስታይል በ JavaScript ከተፈጠረ በኋላ ሊጨመር ይችላል */
