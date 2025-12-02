@@ -1,5 +1,5 @@
 /* =========================================================
-   አጠቃላይ አቀማመጥ እና ቁመት ማስተካከያ (ዋናው መፍትሄ)
+   አጠቃላይ አቀማመጥ እና ቁመት ማስተካከያ (ስክሮልን ለመከላከል)
    ========================================================= */
 body {
     font-family: sans-serif;
@@ -8,9 +8,8 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    /* የ Viewport ቁመት ሙሉ በሙሉ እንዲይዝ ያስገድዳል */
-    height: 100vh; 
-    overflow: hidden; /* በአካል ላይ ስክሮል እንዳይፈጠር */
+    height: 100vh; /* ቁመቱን ሙሉ Viewport እንዲይዝ ያደርጋል */
+    overflow: hidden; /* ዋናው ስክሮልን ይከለክላል */
     background-color: #1a1a2e;
     color: #ecf0f1; 
 }
@@ -18,8 +17,8 @@ body {
 /* የስክሪን መያዣ */
 .screen {
     width: 100%;
-    /* ቁመቱ ከ body ጋር እንዲስተካከል */
-    max-height: 100vh; 
+    max-width: 900px; /* ለትልቅ ማሳያ ማስተካከያ */
+    height: 100%;
     padding: 20px;
     box-sizing: border-box;
     display: none;
@@ -35,22 +34,20 @@ body {
 }
 
 /* =========================================================
-   ACTIVE GAME SCREEN (የሚጫወቱበት ስክሪን)
+   ACTIVE GAME SCREEN (ዋና አቀማመጥ)
    ========================================================= */
 #active-game-screen {
-    max-width: 900px;
     padding: 10px;
-    /* የውስጥ ይዘቱ ከቁመት እንዳያልፍ */
     overflow-y: hidden; 
 }
 
-/* ዋናው የጨዋታ አቀማመጥ (Call Board + Game Details) */
+/* ዋናው የጨዋታ አቀማመጥ (ባለሁለት አምድ) */
 #game-area {
     display: grid;
-    grid-template-columns: 2fr 1.3fr; 
+    grid-template-columns: 2fr 1.3fr; /* ግራ ትልቅ፣ ቀኝ ትንሽ */
     gap: 15px;
     /* ከ Header እና Footer በኋላ የቀረውን ቦታ እንዲይዝ */
-    height: calc(100vh - 80px); /* 80px ለ header/footer የሚገመት ቁመት ነው */
+    height: calc(100vh - 40px); 
 }
 
 /* ------------------ የግራ አምድ: Call Board ------------------ */
@@ -61,20 +58,29 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    /* የጥሪ ሰሌዳው ቁመት ከግራ አምዱ ቁመት ጋር እንዲስተካከል */
     height: 100%; 
-    overflow-y: auto; /* አስፈላጊ ከሆነ ብቻ የውስጥ ስክሮል እንዲኖረው */
+    overflow-y: auto; /* አስፈላጊ ከሆነ የውስጥ ስክሮል */
 }
-
-/* የጥሪ ሰሌዳ ፍርግርግ (B-I-N-G-O አምዶች) */
+#call-board h3 { margin-top: 0; margin-bottom: 10px; }
 .call-board-grid {
     width: 100%;
     display: grid;
     grid-template-columns: repeat(5, 1fr); 
     gap: 2px;
-    text-align: center;
-    /* የBINGO ፊደሎች ወደ ላይ እንዲጣበቁ ለማድረግ */
-    align-items: flex-start; 
+}
+.call-number {
+    padding: 5px 0;
+    background-color: #2c3e50;
+    border-radius: 3px;
+    font-size: 0.8em;
+    font-weight: bold;
+    color: #ecf0f1;
+    border: 1px solid #34495e;
+}
+.call-number.called {
+    background-color: #e74c3c; 
+    color: white;
+    box-shadow: 0 0 5px #e74c3c;
 }
 
 /* ------------------ የቀኝ አምድ: Game Details ------------------ */
@@ -82,37 +88,134 @@ body {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    /* ቀሪውን ቁመት እንዲይዝ */
     height: 100%;
-    overflow-y: auto; /* አስፈላጊ ከሆነ ብቻ የውስጥ ስክሮል እንዲኖረው */
+    overflow-y: auto; /* አስፈላጊ ከሆነ የውስጥ ስክሮል */
 }
 
-/* ... (የቀሩት የCSS ህጎች ሳይለወጡ ይቀጥላሉ) ... */
+/* Wallet እና Stake Display */
 .header-stats {
     display: flex;
     justify-content: space-between;
     gap: 5px;
-    /* የቀኝ አምድ የላይኛው ክፍል ላይ እንዲጣበቅ */
     flex-shrink: 0; 
 }
+.header-stat {
+    flex: 1;
+    padding: 5px;
+    border-radius: 5px;
+    text-align: center;
+    font-weight: bold;
+    color: #1a1a2e;
+    font-size: 0.9em;
+}
+#wallet-balance, #stake-amount { background-color: #f1c40f; }
 
-/* ... (የቀሩት የCSS ህጎች ይቀጥላሉ) ... */
+/* የአሁን ጥሪ */
+#called-number { text-align: center; flex-shrink: 0; }
+#current-call {
+    font-size: 2.5em;
+    background-color: #3498db;
+    color: white;
+    padding: 5px;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    margin: 5px auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
+/* የቅርብ ጊዜ ጥሪዎች */
+#recent-calls-container {
+    background-color: #34495e;
+    padding: 5px;
+    border-radius: 5px;
+    flex-shrink: 0;
+}
+#recent-calls-list {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    max-height: 50px;
+    overflow-y: auto;
+}
+#recent-calls-list li {
+    background-color: #2c3e50;
+    padding: 3px 6px;
+    border-radius: 3px;
+    font-size: 0.7em;
+}
+
+/* የተጫዋች ካርድ */
 #player-card {
-    /* የካርዱ ክፍል በተቻለ መጠን እንዲያድግ */
-    flex-grow: 1; 
-    background-color: #34495e; 
+    background-color: #34495e;
     padding: 10px;
     border-radius: 8px;
+    flex-grow: 1; /* ቦታ ሲኖር እንዲያድግ */
 }
-/* ... (የቀሩት የCSS ህጎች ይቀጥላሉ) ... */
+#player-card h3, #player-card h4 { margin: 5px 0; text-align: center; }
+#player-card table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    margin-top: 10px;
+}
+#player-card th { background-color: #9b59b6; color: white; padding: 5px 0; font-size: 0.9em; }
+#bingo-card-grid td {
+    padding: 5px;
+    border: 1px solid #2c3e50;
+    font-size: 0.9em;
+    font-weight: bold;
+    cursor: pointer;
+    background-color: #2c3e50; 
+    color: white;
+}
+#bingo-card-grid td.free-space { background-color: #e67e22; color: white; cursor: default; }
+#bingo-card-grid td.marked:not(.free-space) { background-color: #e74c3c; color: white; }
+
+/* የጨዋታ ሁኔታ እና መቆጣጠሪያዎች */
+#game-status { text-align: center; flex-shrink: 0; }
+#connection-status { font-weight: bold; color: #2ecc71; margin-bottom: 5px; display: block; }
+#bingo-btn {
+    padding: 10px;
+    width: 100%;
+    font-size: 1.1em;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #f39c12; 
+    color: #1a1a2e;
+}
+
+/* Exit እና Refresh አዝራሮች */
 #game-controls {
     display: flex;
     justify-content: space-between;
     gap: 10px;
     margin-top: 10px;
-    /* ከታች እንዲጣበቅ */
-    flex-shrink: 0; 
+    flex-shrink: 0;
 }
+#game-controls button {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+#exit-btn { background-color: #e74c3c; color: white; }
+#refresh-btn { background-color: #2ecc71; color: white; }
 
-/* ... (ሌሎች ያልተለወጡ CSS ህጎች ከዚህ በታች ይቀጥላሉ) ... */
+/* LOBBY እና CARD SELECTION */
+#lobby-screen h1 { color: #f1c40f; text-align: center; margin-bottom: 30px; }
+#lobby-screen button { width: 100%; padding: 15px; background-color: #f39c12; color: #1a1a2e; border: none; border-radius: 5px; }
+#card-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; max-height: 400px; overflow-y: auto; padding: 10px 0; }
+.mock-bingo-card { background-color: #34495e; border: 3px solid #34495e; border-radius: 8px; padding: 10px; cursor: pointer; }
+.mock-bingo-card.selected { border-color: #2ecc71; box-shadow: 0 0 10px #2ecc71; }
+#card-selection-screen button { width: 48%; padding: 10px; margin-top: 15px; border: none; border-radius: 5px; }
+#start-game-btn { background-color: #2ecc71; color: white; }
+#back-to-lobby-btn { background-color: #7f8c8d; color: white; }
