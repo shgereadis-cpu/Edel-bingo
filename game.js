@@ -1,243 +1,131 @@
-// game.js (FULL - Bingo Verification Logic ስህተቱ ታርሟል)
+// game.js (ለአንድ ጊዜ የካርድ ዳታ ማውጣት ብቻ - JSON Box ከላይ እንዲሆን ተስተካክሏል)
 
 const CARD_SIZE = 5; 
 const LETTERS = ['B', 'I', 'N', 'G', 'O'];
+// ለየቢንጎ ፊደል ክልሎች
+const RANGES = {
+    'B': [1, 15],
+    'I': [16, 30],
+    'N': [31, 45],
+    'G': [46, 60],
+    'O': [61, 75]
+};
 
 const masterGridElement = document.getElementById('master-grid');
 const playerCardElement = document.getElementById('player-bingo-card');
 const calledNumberDisplay = document.getElementById('called-number-display'); 
 const calledHistoryArea = document.getElementById('called-history');
 const bingoButton = document.getElementById('central-bingo-btn');
+const cardIdDisplay = document.getElementById('card-id'); 
 
-// የጨዋታ ሁኔታን እና የተጠሩ ቁጥሮችን የሚይዝ ግሎባል ተለዋዋጮች
 let calledNumbers = [];
 let gameInterval;
 const MAX_HISTORY_CHIPS = 10; 
 
-// ቋሚ የቢንጎ ካርዶች ክምችት (Pool) - ለሙከራ
-const STATIC_CARD_POOL = {
-    'card-44': {
-        'B': [5, 4, 15, 2, 3],
-        'I': [17, 30, 29, 28, 26],
-        'N': [37, 39, 'FREE', 36, 33],
-        'G': [60, 54, 51, 48, 52],
-        'O': [75, 73, 68, 62, 65]
-    }
-};
+// ቋሚ የ100 ካርዶች መረጃ የሚቀመጥበት ቦታ (Global Pool)
+let STATIC_CARD_POOL = {};
+const TOTAL_CARDS_TO_GENERATE = 100;
 
-// ==========================================================
-// 1. 75 ቁጥሮችን Master Grid ላይ የሚሞላ ተግባር
-// ==========================================================
-function renderMasterGrid() {
-    masterGridElement.innerHTML = '';
+/**
+ * በቢንጎ ደንብ መሰረት አንድ ልዩ ካርድ ያመነጫል
+ */
+function generateUniqueCard() {
+    const cardData = {};
     
-    for (let i = 0; i < 75; i++) {
-        const rowIndex = Math.floor(i / 5);
-        const colIndex = i % 5;
-        
-        const number = (rowIndex + 1) + (colIndex * 15);
-
-        const cell = document.createElement('div');
-        cell.textContent = number;
-        cell.classList.add('master-cell');
-        cell.dataset.number = number;
-        masterGridElement.appendChild(cell);
-    }
-}
-
-// 2. የተጫዋቹን 5x5 ካርድ የሚጭን ተግባር
-function renderPlayerCard(cardId) {
-    const cardData = STATIC_CARD_POOL[cardId];
-    if (!cardData) return;
-    
-    playerCardElement.innerHTML = '';
-    
-    // Headers (B I N G O)
     LETTERS.forEach(letter => {
-        const header = document.createElement('div');
-        header.textContent = letter;
-        header.classList.add('header');
-        playerCardElement.appendChild(header);
+        const [min, max] = RANGES[letter];
+        const rangeSize = max - min + 1;
+        const columnNumbers = [];
+        
+        while (columnNumbers.length < CARD_SIZE) {
+            const randomNumber = Math.floor(Math.random() * rangeSize) + min;
+            if (!columnNumbers.includes(randomNumber)) {
+                columnNumbers.push(randomNumber);
+            }
+        }
+        cardData[letter] = columnNumbers.sort((a, b) => a - b); 
     });
-
-    // Cells
-    for (let row = 0; row < CARD_SIZE; row++) {
-        LETTERS.forEach(letter => {
-            const cell = document.createElement('div');
-            const number = cardData[letter][row];
-            
-            cell.textContent = number;
-            cell.classList.add('cell');
-
-            if (number === 'FREE') {
-                cell.classList.add('free-space', 'marked');
-            } else {
-                cell.dataset.number = number;
-                cell.dataset.letter = letter; 
-                cell.addEventListener('click', () => toggleMark(cell)); 
-            }
-            playerCardElement.appendChild(cell);
-        });
-    }
+    
+    cardData['N'][Math.floor(CARD_SIZE / 2)] = 'FREE'; 
+    
+    return cardData;
 }
 
-// 3. በተጫዋች ካርድ ላይ ምልክት (Mark) ለማድረግ
-function toggleMark(cell) {
-    const num = parseInt(cell.dataset.number);
-    if (calledNumbers.includes(num)) {
-        cell.classList.toggle('marked');
-    }
-}
-
-// 4. ቁጥሮችን በቢንጎ ደንብ የሚመድብ ተግባር 
-function getBingoLabel(number) {
-    if (number >= 1 && number <= 15) return 'B';
-    if (number >= 16 && number <= 30) return 'I';
-    if (number >= 31 && number <= 45) return 'N';
-    if (number >= 46 && number <= 60) return 'G';
-    if (number >= 61 && number <= 75) return 'O';
-    return '';
-}
-
-// 5. ቁጥር የመጥራት ተግባር
-function callNumber() {
-    let newNumber;
+/**
+ * 100 ፍጹም የተለያየ የቢንጎ ካርዶችን ያመነጫል
+ */
+function generateStaticCardPool(count) {
+    const cardPool = {};
+    const cardHashStorage = new Set(); 
+    let attempts = 0;
     
-    do {
-        newNumber = Math.floor(Math.random() * 75) + 1; 
-    } while (calledNumbers.includes(newNumber) && calledNumbers.length < 75);
-
-    if (calledNumbers.length === 75) {
-        clearInterval(gameInterval);
-        calledNumberDisplay.textContent = 'GAME OVER';
-        return;
-    }
-
-    const label = getBingoLabel(newNumber);
-    const labeledNumber = `${label}-${newNumber}`;
-
-    calledNumbers.push(newNumber);
-    
-    const masterCell = document.querySelector(`.master-cell[data-number="${newNumber}"]`);
-    if (masterCell) {
-        masterCell.classList.add('called');
-    }
-    
-    calledNumberDisplay.textContent = labeledNumber; 
-    
-    const historyChip = document.createElement('span');
-    historyChip.textContent = labeledNumber;
-    historyChip.classList.add('history-chip', label);
-    
-    calledHistoryArea.prepend(historyChip);
-
-    if (calledHistoryArea.children.length > MAX_HISTORY_CHIPS) {
-        calledHistoryArea.removeChild(calledHistoryArea.lastChild);
-    }
-}
-
-// ==========================================================
-// 6. የማሸነፊያ (Bingo) ቼክ Logic (ተስተካክሏል!)
-// ==========================================================
-function checkBingo() {
-    // በትክክል 25ቱን የውሂብ ሴሎች ብቻ እንሰበስባለን
-    const cells = playerCardElement.querySelectorAll('.cell');
-    const markedStatus = [];
-
-    // 25 ሴሎችን ወደ 5x5 boolean ድርድር መለወጥ
-    for (let i = 0; i < CARD_SIZE; i++) { // Row (0 to 4)
-        markedStatus[i] = [];
-        for (let j = 0; j < CARD_SIZE; j++) { // Column (0 to 4)
-            
-            // የሴል ኢንዴክስ (0 እስከ 24)
-            const cellIndex = (i * CARD_SIZE) + j;
-            
-            // marked መሆኑን ማረጋገጥ
-            markedStatus[i][j] = cells[cellIndex].classList.contains('marked');
+    while (Object.keys(cardPool).length < count && attempts < count * 20) {
+        const newCardData = generateUniqueCard();
+        const cardHash = JSON.stringify(newCardData);
+        
+        if (!cardHashStorage.has(cardHash)) {
+            const cardId = Object.keys(cardPool).length + 1; 
+            cardPool[`card-${cardId}`] = newCardData;
+            cardHashStorage.add(cardHash);
         }
-    }
-    
-    // 1. አግድም (Rows) ቼክ
-    for (let i = 0; i < CARD_SIZE; i++) {
-        if (markedStatus[i].every(status => status)) {
-            return true;
-        }
+        attempts++;
     }
 
-    // 2. ቁመታዊ (Columns) ቼክ
-    for (let j = 0; j < CARD_SIZE; j++) {
-        let isWinningColumn = true;
-        for (let i = 0; i < CARD_SIZE; i++) {
-            if (!markedStatus[i][j]) {
-                isWinningColumn = false;
-                break;
-            }
-        }
-        if (isWinningColumn) return true;
+    if (Object.keys(cardPool).length < count) {
+        console.error(`Could not generate ${count} unique cards.`);
     }
 
-    // 3. ሰያፍ (Diagonals) ቼክ
-    let diag1 = true; // ከላይ ግራ ወደ ታች ቀኝ
-    let diag2 = true; // ከላይ ቀኝ ወደ ታች ግራ
-
-    for (let i = 0; i < CARD_SIZE; i++) {
-        // ዋናው ሰያፍ (i, i)
-        if (!markedStatus[i][i]) {
-            diag1 = false;
-        }
-        // ሁለተኛው ሰያፍ (i, 4-i)
-        if (!markedStatus[i][CARD_SIZE - 1 - i]) {
-            diag2 = false;
-        }
-    }
-
-    return diag1 || diag2;
+    return cardPool;
 }
 
-// 7. የጨዋታውን ቆጣሪ ማስጀመር
-function startGameLoop() {
-    if (gameInterval) clearInterval(gameInterval);
-    
-    gameInterval = setInterval(callNumber, 3000); 
-}
+// ----------------------------------------------------
+// የጨዋታው ቀሪ ተግባራት (ለማውጣት ሲባል ለጊዜው አይጠሩም)
+// ----------------------------------------------------
+function renderMasterGrid() {/* ... */}
+function renderPlayerCard(cardId) {/* ... */}
+function toggleMark(cell) {/* ... */}
+function getBingoLabel(number) {/* ... */}
+function callNumber() {/* ... */}
+function checkBingo() {/* ... */}
+function startGameLoop() {/* ... */}
 
 
-// ገጹ ሲከፈት ሁለቱንም ግሪዶች ማስጀመር
+// ገጹ ሲከፈት ሁሉንም ማስጀመር
 document.addEventListener('DOMContentLoaded', () => {
-    renderMasterGrid();
-    renderPlayerCard('card-44'); 
-
-    startGameLoop(); 
-
+    
+    // 1. 100 ቋሚ እና ልዩ የቢንጎ ካርዶችን መፍጠር
+    STATIC_CARD_POOL = generateStaticCardPool(TOTAL_CARDS_TO_GENERATE);
+    
+    // !!! JSON ዳታውን በስክሪን ላይ እንዲታይ እና በቀላሉ ኮፒ እንዲደረግ ማድረግ !!!
+    const cardDataString = JSON.stringify(STATIC_CARD_POOL);
+    
+    // አዲስ textarea ኤለመንት መፍጠር
+    const debugOutput = document.createElement('textarea');
+    debugOutput.id = 'static-card-data';
+    debugOutput.style.width = '95%';
+    debugOutput.style.height = '400px';
+    debugOutput.style.margin = '10px auto';
+    debugOutput.style.display = 'block';
+    debugOutput.style.backgroundColor = '#1e1e1e';
+    debugOutput.style.color = '#00ff7f'; // Neon Green
+    debugOutput.style.border = '2px solid #00ff7f';
+    debugOutput.style.fontSize = '10px';
+    debugOutput.textContent = cardDataString;
+    
+    // ይህንን ኤለመንት ከዋናው main-wrapper በፊት በማስገባት ከላይ እንዲታይ ማድረግ
+    const mainWrapper = document.querySelector('.main-wrapper');
+    if (mainWrapper) {
+        mainWrapper.parentNode.insertBefore(debugOutput, mainWrapper);
+        mainWrapper.style.display = 'none'; // የጨዋታውን UI ለጊዜው ደብቅ
+    } else {
+        document.body.appendChild(debugOutput);
+    }
+    
+    console.log("STATIC_CARD_POOL DATA: (በስክሪኑ ላይ ይታያል)", cardDataString);
+    // !!! እባክዎ በስክሪኑ ላይ የሚታየውን ሙሉ ጽሑፍ ኮፒ ያድርጉ !!!
+    
+    // የቴሌግራም ዌብ አፕ ዝግጁ እንዲሆን
     if (window.Telegram && window.Telegram.WebApp) {
         window.Telegram.WebApp.ready();
     }
-    
-    document.getElementById('exit-btn').addEventListener('click', () => {
-        if (gameInterval) clearInterval(gameInterval); 
-        if (window.Telegram && window.Telegram.WebApp) {
-            window.Telegram.WebApp.close();
-        }
-    });
-
-    document.getElementById('refresh-btn').addEventListener('click', () => {
-        if (gameInterval) clearInterval(gameInterval); 
-        window.location.reload();
-    });
-
-    // Bingo አዝራር Logic - አሁን አሸናፊነትን ይፈትሻል!
-    bingoButton.addEventListener('click', () => {
-        if (gameInterval) clearInterval(gameInterval); 
-        
-        const hasWon = checkBingo();
-
-        if (hasWon) {
-            alert('🎉 እንኳን ደስ አለዎት! ቢንጎ አሸንፈዋል! 🎉');
-            bingoButton.textContent = 'WON!';
-            bingoButton.style.backgroundColor = '#28a745'; 
-        } else {
-            alert('❌ ቢንጎ ገና አልተሞላም! ጨዋታው ይቀጥላል።');
-            startGameLoop(); 
-        }
-    });
 });
