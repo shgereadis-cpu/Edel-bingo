@@ -3,9 +3,9 @@
 // =========================================================
 
 const BINGO_LETTERS = ['B', 'I', 'N', 'G', 'O'];
-const CALL_INTERVAL_MS = 4000; // ቁጥር የሚጠራበት ፍጥነት (በ ሚሊ ሰከንድ)
-const CARD_SELECTION_TIME = 60; // 60 ሰከንድ ለካርድ ምርጫ
-const ROUND_END_PAUSE_MS = 5000; // 5 ሰከንድ አሸናፊውን ለማሳየት
+const CALL_INTERVAL_MS = 4000; // ቁጥር የሚጠራበት ፍጥነት
+const CARD_SELECTION_TIME = 60; // ለካርድ ምርጫ 60 ሰከንድ
+const ROUND_END_PAUSE_MS = 5000; 
 
 // የገንዘብ አያያዝ ተለዋዋጮች
 let walletBalance = 100; 
@@ -36,15 +36,12 @@ const cardGridBody = document.getElementById('bingo-card-grid');
 const currentCallDisplay = document.getElementById('current-call');
 const recentCallsList = document.getElementById('recent-calls-list');
 
-// አዲስ ኤለመንት ለጊዜ ቆጣሪ (በHTML ውስጥ ስላልነበር እዚሁ ፈጠርነው)
-const timerDisplay = document.createElement('h3');
-timerDisplay.id = 'timer-display';
-timerDisplay.style.color = '#e74c3c';
-cardSelectionScreen.prepend(timerDisplay);
+// የጊዜ ቆጣሪ ኤለመንት (በHTML ውስጥ ስላልነበር እዚሁ ፈጥረን ወደ selection screen እንጨምረዋለን)
+const timerDisplay = document.getElementById('timer-display');
 
 
 // =========================================================
-// II. የካርድ ማመንጨት እና ምርጫ (Dynamic Card Generation)
+// II. የካርድ ማመንጨት እና ምርጫ
 // =========================================================
 
 function getRandomNumbers(min, max) {
@@ -87,7 +84,7 @@ function loadDynamicCards(numCards = 100) {
     cardListDiv.innerHTML = 'ካርዶች እየተፈጠሩ ነው...';
     allGeneratedCards = {};
     selectedCardId = null;
-    selectedCardData = null; // የድሮ ካርድ መረጃ ማፅዳት
+    selectedCardData = null; 
     startGameBtn.disabled = true;
 
     for (let i = 1; i <= numCards; i++) {
@@ -126,12 +123,15 @@ function selectCard(cardElement, cardId, cardData) {
     selectedCardId = cardId;
     selectedCardData = cardData;
     startGameBtn.disabled = false;
-    timerDisplay.textContent = `Card #${cardId} Selected. Waiting for game start... (${CARD_SELECTION_TIME} sec left)`;
+    // ቆጣሪው ካርድ ከተመረጠ በኋላ እንዲቀጥል እናረጋግጣለን
+    if (currentCardSelectionTimer) {
+        timerDisplay.textContent = `Card #${cardId} Selected. Time left: ${Math.max(0, parseInt(timerDisplay.textContent.match(/\d+/)[0]))} sec`;
+    }
 }
 
 
 // =========================================================
-// III. የጨዋታ አፈፃፀም እና የገንዘብ አያያዝ
+// III. የጨዋታ አፈፃፀም እና ፍሰት
 // =========================================================
 
 function showScreen(screenToShow) {
@@ -155,7 +155,7 @@ function populatePlayerCard(cardId, cardData) {
     document.getElementById('card-number').textContent = cardId;
     cardGridBody.innerHTML = '';
 
-    cardData.forEach((row, rowIndex) => {
+    cardData.forEach(row => {
         const tr = document.createElement('tr');
         row.forEach((cellData, colIndex) => {
             const td = document.createElement('td');
@@ -167,9 +167,6 @@ function populatePlayerCard(cardId, cardData) {
             } else {
                 td.addEventListener('click', () => markPlayerCell(td, cellData));
             }
-
-            let letter = BINGO_LETTERS[colIndex];
-            td.id = `cell-${letter}-${cellData.value}`;
 
             if (cellData.marked && !cellData.isFree) {
                  td.classList.add('marked');
@@ -183,16 +180,29 @@ function populatePlayerCard(cardId, cardData) {
 
 /** የጥሪ ሰሌዳውን መፍጠር (ከ1-75) */
 function createCallBoard() {
-    const callBoard = document.getElementById('call-board');
-    let grid = callBoard.querySelector('.call-board-grid');
-    if (grid) { 
-        grid.innerHTML = ''; // ያለፉ ጥሪዎችን ለማፅዳት
-    } else {
+    const callBoardContainer = document.getElementById('call-board');
+    let grid = callBoardContainer.querySelector('.call-board-grid');
+    
+    // Grid ከሌለ ይፍጠረው
+    if (!grid) {
         grid = document.createElement('div');
         grid.className = 'call-board-grid';
-        callBoard.appendChild(grid);
+        callBoardContainer.appendChild(grid);
+    } else {
+        grid.innerHTML = ''; // ያለፉ ጥሪዎችን ለማፅዳት
     }
     
+    // የBINGO ፊደል ራስጌዎች
+    const letterHeader = document.createElement('div');
+    letterHeader.className = 'call-board-grid bingo-letters';
+    BINGO_LETTERS.forEach(letter => {
+        const h4 = document.createElement('h4');
+        h4.textContent = letter;
+        grid.appendChild(h4); // ለ Call Board Grid አናት ላይ የ BINGO ፊደሎችን ያሳያል
+    });
+
+
+    // 75 ቁጥሮችን በ Call Board Grid ውስጥ መሙላት
     for (let i = 1; i <= 75; i++) {
         const numberDiv = document.createElement('div');
         numberDiv.textContent = i;
@@ -213,12 +223,9 @@ function markPlayerCell(cellElement, cellData) {
     }
     
     cellData.marked = !cellData.marked;
-    cellElement.classList.toggle('marked', cellData.marked);
+    // በተጫዋቹ ካርድ ላይ ያለውን ምልክት በUI ላይ ያዘምናል
+    cellElement.classList.toggle('marked', cellData.marked); 
 }
-
-// =========================================================
-// IV. የጨዋታ ዑደት መቆጣጠሪያ (Game Loop Controllers)
-// =========================================================
 
 function startCardSelectionTimer() {
     let timeLeft = CARD_SELECTION_TIME;
@@ -267,7 +274,7 @@ function startGame() {
     bingoBtn.disabled = false;
     if (numberCallInterval) clearInterval(numberCallInterval);
     
-    // 3. የካርዱን ምልክቶች ማፅዳት (Markings Reset)
+    // 3. የካርዱን ምልክቶች ማፅዳት
     if (selectedCardData) {
         selectedCardData.forEach(row => {
             row.forEach(cell => {
@@ -282,7 +289,7 @@ function startGame() {
     createCallBoard();
     populatePlayerCard(selectedCardId, selectedCardData);
 
-    currentCallDisplay.textContent = 'ጨዋታው ተጀምሯል! ቁጥሮች በራስ-ሰር ይጠራሉ...';
+    currentCallDisplay.textContent = 'GAME ON!';
     document.getElementById('connection-status').textContent = `Calling Every ${CALL_INTERVAL_MS/1000} Seconds`; 
     
     isRoundInProgress = true;
@@ -309,11 +316,13 @@ function callNextNumber() {
 
     currentCallDisplay.textContent = callText;
 
+    // በ Call Board ላይ ምልክት ማድረግ
     const callBoardCell = document.getElementById(`call-num-${letter}-${calledNum}`);
     if (callBoardCell) {
         callBoardCell.classList.add('called');
     }
 
+    // በቅርብ ጊዜ ጥሪዎች ዝርዝር ውስጥ መጨመር
     const li = document.createElement('li');
     li.textContent = callText;
     recentCallsList.prepend(li);
@@ -324,7 +333,7 @@ function checkBingo() {
     const BINGO_SIZE = 5;
     const isMarked = (r, c) => selectedCardData[r][c].marked; 
 
-    // Rows, Columns, Diagonals Check...
+    // ረድፎች, አምዶች, እና ዲያጎናሎችን ማረጋገጥ
     for (let r = 0; r < BINGO_SIZE; r++) { if (selectedCardData[r].every((_, c) => isMarked(r, c))) return true; }
     for (let c = 0; c < BINGO_SIZE; c++) { if (selectedCardData.every((_, r) => isMarked(r, c))) return true; }
     if (Array.from({ length: BINGO_SIZE }, (_, i) => i).every(i => isMarked(i, i))) return true;
@@ -339,11 +348,12 @@ function endGame(isWinner, message) {
     isRoundInProgress = false;
     bingoBtn.disabled = true;
     
-    // የገንዘብ ክፍያ
     if (isWinner) {
         walletBalance += winPayout;
         updateWalletDisplay();
         alert(`🎉🎉🎉 BINGO! ${winPayout} ETB አሸንፈዋል! አዲስ ቀሪ ሂሳብ: ${walletBalance} ETB`);
+    } else {
+        alert(message);
     }
     
     document.getElementById('connection-status').textContent = isWinner ? 'Winner Declared!' : 'Round Ended';
@@ -371,12 +381,13 @@ function handleBingoClick() {
 
 
 // =========================================================
-// IX. የፕሮግራም ማስጀመሪያ (Entry Point)
+// IX. የፕሮግራም ማስጀመሪያ
 // =========================================================
 
 document.addEventListener('DOMContentLoaded', () => {
+    // ከመጀመሩ በፊት UIን ማዘጋጀት
     createCallBoard();
-    updateWalletDisplay(); // የ Wallet ማሳያውን መጀመሪያ ላይ መጀመር
+    updateWalletDisplay(); 
 
     // የክስተት አድማጮችን ማያያዝ
     joinBtn.addEventListener('click', () => {
@@ -390,7 +401,6 @@ document.addEventListener('DOMContentLoaded', () => {
         showScreen(lobbyScreen);
     });
     
-    // ቆጣሪውን አቋርጦ ወደ ጨዋታው ለመግባት (አንድ ካርድ ከተመረጠ)
     startGameBtn.addEventListener('click', () => {
         if (selectedCardId) {
             if (currentCardSelectionTimer) {
@@ -409,8 +419,14 @@ document.addEventListener('DOMContentLoaded', () => {
     exitBtn.addEventListener('click', () => {
          if (numberCallInterval) clearInterval(numberCallInterval);
          if (currentCardSelectionTimer) clearInterval(currentCardSelectionTimer);
+         isRoundInProgress = false;
          showScreen(lobbyScreen);
          alert(`ከጨዋታው ወጥተዋል! ቀሪ ሂሳብዎ: ${walletBalance} ETB`);
+    });
+    
+    // Refresh (F5) ቁልፍ ስራ የለውም, ኮዱን ለማስፈጸም
+    document.getElementById('refresh-btn').addEventListener('click', () => {
+        window.location.reload(); 
     });
 
     showScreen(lobbyScreen);
