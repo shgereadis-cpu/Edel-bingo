@@ -3,8 +3,8 @@
  */
 body {
     font-family: sans-serif;
-    background-color: #2c3e50; /* ጥቁር ሰማያዊ/ግራጫ ዳራ */
-    color: #ecf0f1; /* ቀላል ጽሁፍ */
+    background-color: #2c3e50;
+    color: #ecf0f1; 
     margin: 0;
     padding: 0;
     display: flex;
@@ -21,7 +21,7 @@ body {
     width: 90%;
     max-width: 800px;
     padding: 20px;
-    background-color: #34495e; /* ከዳራው ትንሽ ቀለል ያለ */
+    background-color: #34495e; 
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
     text-align: center;
@@ -35,11 +35,9 @@ body {
     display: block;
 }
 
-/*
- * Buttons
- */
+/* Buttons */
 button {
-    background-color: #1abc9c; /* አረንጓዴ/ሰማያዊ */
+    background-color: #1abc9c;
     color: white;
     padding: 10px 20px;
     border: none;
@@ -59,9 +57,7 @@ button:disabled {
     cursor: not-allowed;
 }
 
-/*
- * Card Selection Screen Styles
- */
+/* Card Selection Screen Styles */
 #card-list {
     display: flex;
     flex-wrap: wrap;
@@ -71,7 +67,7 @@ button:disabled {
 }
 
 .mock-bingo-card {
-    background-color: #f1c40f; /* ቢጫ እንደ Active Card */
+    background-color: #f1c40f;
     color: #34495e;
     padding: 10px;
     border-radius: 5px;
@@ -82,12 +78,8 @@ button:disabled {
     text-align: left;
 }
 
-.mock-bingo-card:hover {
-    border-color: #e67e22; /* ብርቱካንማ ድንበር ለሆቨር */
-}
-
 .mock-bingo-card.selected {
-    border-color: #2ecc71; /* አረንጓዴ ድንበር ለተመረጠ ካርድ */
+    border-color: #2ecc71;
     box-shadow: 0 0 10px rgba(46, 204, 113, 0.8);
 }
 
@@ -96,8 +88,7 @@ button:disabled {
     font-size: 12px;
 }
 
-/*
- * Active Game Screen Layout
+/* * ACTIVE GAME SCREEN LAYOUT (Crucial for fixing the display)
  */
 #active-game-screen {
     padding: 10px;
@@ -112,21 +103,20 @@ button:disabled {
     border-bottom: 2px solid #2ecc71;
 }
 
+/* THIS SECTION IS KEY TO THE LAYOUT FIX */
 #game-area {
     display: flex;
-    gap: 15px; /* በ Call Board እና በ Game Details መካከል ያለው ክፍተት */
+    gap: 15px; 
 }
 
-/*
- * 1. Call Board (ትልቁ የቁጥሮች ፍርግርግ)
- */
+/* 1. Call Board (Left side) */
 #call-board {
-    flex: 1.5; /* ከሌላው ክፍል ትንሽ ትልቅ እንዲሆን */
+    flex: 1.5; 
     background-color: #2c3e50;
-    border: 3px solid #2ecc71; /* አረንጓዴ ድንበር */
+    border: 3px solid #2ecc71;
     padding: 10px;
     border-radius: 8px;
-    min-width: 200px;
+    min-width: 200px; /* ዝቅተኛ ስፋት እንዲኖረው */
 }
 
 #call-board h3 {
@@ -138,13 +128,13 @@ button:disabled {
 /* Call Board Grid Structure */
 .call-board-grid {
     display: grid;
-    grid-template-columns: repeat(15, 1fr); /* 15 አምዶች (1-75) */
+    grid-template-columns: repeat(15, 1fr); /* 15 አምዶች */
     gap: 3px;
     margin-top: 10px;
 }
 
 .call-number {
-    background-color: #7f8c8d; /* ግራጫ ለ ያልተጠራ ቁጥር */
+    background-color: #7f8c8d;
     color: #2c3e50;
     padding: 5px 0;
     text-align: center;
@@ -156,22 +146,20 @@ button:disabled {
 }
 
 .call-number.called {
-    background-color: #e74c3c; /* ቀይ ለተጠራ ቁጥር */
+    background-color: #e74c3c;
     color: white;
 }
 
-/*
- * 2. Game Details (የተጠራው ቁጥር፣ ካርድ፣ ወዘተ...)
- */
+/* 2. Game Details (Right side) */
 #game-details {
-    flex: 1; /* የቀረው ክፍል */
+    flex: 1; 
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
 
 #called-number {
-    background-color: #2ecc71; /* አረንጓዴ ዳራ */
+    background-color: #2ecc71;
     color: #2c3e50;
     padding: 10px;
     border-radius: 5px;
@@ -190,11 +178,9 @@ button:disabled {
     margin-top: 5px;
 }
 
-/*
- * Player Card Style
- */
+/* Player Card Style */
 #player-card {
-    background-color: #f1c40f; /* ቢጫ ዳራ ለካርዱ */
+    background-color: #f1c40f; 
     color: #34495e;
     padding: 8px;
     border-radius: 5px;
@@ -212,7 +198,7 @@ button:disabled {
 }
 
 #player-card th, #player-card td {
-    border: 1px solid #c0392b; /* ቀይ መስመር */
+    border: 1px solid #c0392b; 
     padding: 5px;
     text-align: center;
     font-weight: bold;
@@ -223,26 +209,22 @@ button:disabled {
 }
 
 #player-card th {
-    background-color: #c0392b; /* ቀይ ራስጌ */
+    background-color: #c0392b;
     color: white;
 }
 
-/* የነጻውን ቦታ ስታይል */
 .free-space {
-    background-color: #3498db; /* ሰማያዊ */
+    background-color: #3498db;
     color: white;
 }
 
-/* የተጫዋቹ የካርድ ቁጥር ሲመታ (Marked) የሚያገኘው ስታይል */
 #player-card td.marked {
-    background-color: #e74c3c; /* ቀይ ምልክት */
+    background-color: #e74c3c;
     color: white;
     transform: scale(1.05);
 }
 
-/*
- * Recent Calls
- */
+/* Recent Calls */
 #recent-calls h4 {
     margin: 0 0 5px 0;
     font-size: 16px;
@@ -260,11 +242,11 @@ button:disabled {
     border-radius: 5px;
     min-height: 50px;
     max-height: 120px;
-    overflow-y: auto; /* ዝርዝሩ ሲረዝም ለማንሸራተት */
+    overflow-y: auto;
 }
 
 #recent-calls-list li {
-    background-color: #95a5a6; /* የቅርብ ጊዜ ቁጥር ዳራ */
+    background-color: #95a5a6;
     color: #2c3e50;
     padding: 3px 6px;
     border-radius: 3px;
@@ -272,9 +254,7 @@ button:disabled {
     font-weight: bold;
 }
 
-/*
- * Game Status & Bingo Button
- */
+/* Game Status & Bingo Button */
 #game-status {
     background-color: #34495e;
     padding: 10px;
@@ -283,14 +263,14 @@ button:disabled {
 }
 
 #connection-status {
-    color: #2ecc71; /* አረንጓዴ */
+    color: #2ecc71;
     font-weight: bold;
     display: block;
     margin-bottom: 5px;
 }
 
 #bingo-btn {
-    background-color: #e74c3c; /* ቀይ ለ Bingo */
+    background-color: #e74c3c;
     padding: 15px 30px;
     font-size: 18px;
     font-weight: bold;
@@ -301,9 +281,7 @@ button:disabled {
     background-color: #c0392b;
 }
 
-/*
- * Game Controls (Exit & Refresh)
- */
+/* Game Controls (Exit & Refresh) */
 #game-controls {
     display: flex;
     justify-content: space-between;
