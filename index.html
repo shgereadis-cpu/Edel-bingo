@@ -16,7 +16,8 @@
 
     <div id="card-selection-screen" class="screen hidden">
         <h2>የቢንጎ ካርድዎን ይምረጡ</h2>
-        <div id="timer-display"></div>         <div id="card-list">
+        <div id="timer-display"></div>
+        <div id="card-list">
             <p>ካርዶቹ እየተጫኑ ነው... እባክዎ ይጠብቁ።</p>
         </div>
 
@@ -24,53 +25,55 @@
         <button id="back-to-lobby-btn">← ወደ ሎቢ ተመለስ</button>
     </div>
 
-    <div id="active-game-screen" class="screen hidden">
-        
-        <div id="game-area">
+        <div id="active-game-screen" class="screen hidden">
+        
+                <div id="game-area">
             
-                        <div id="call-board">
-                <h3>የተጠሩ ቁጥሮች</h3>
+                        <div class="header-stats">
+                <span id="wallet-balance" class="header-stat">Wallet: 100 ETB</span>
+                <span id="stake-amount" class="header-stat">Stake: 10 ETB</span>
             </div>
-
-                        <div id="game-details">
-                
-                                <div class="header-stats">
-                    <span id="wallet-balance" class="header-stat">Wallet: 100 ETB</span>
-                    <span id="stake-amount" class="header-stat">Stake: 10 ETB</span>
-                </div>
-                
-                                <div id="called-number">
+            
+                        <div id="call-info">
+                <div id="called-number">
                     <span id="current-call">READY!</span>
                 </div>
-                
-                                <div id="recent-calls-container">
-                    <ul id="recent-calls-list">
-                        </ul>
+                <div id="recent-calls-container">
+                    <h3>Recent Calls:</h3>
+                    <ul id="recent-calls-list"></ul>
                 </div>
+                <button id="view-board-btn">የጥሪ ሰሌዳውን እይ</button>
+            </div>
 
-                                <div id="player-card">
-                    <h3>Your Cards 1</h3> 
-                    <h4>Card Number <span id="card-number">XX</span></h4>
-                    <table>
-                        <thead>
-                            <tr><th>B</th><th>I</th><th>N</th><th>G</th><th>O</th></tr>
-                        </thead>
-                        <tbody id="bingo-card-grid">
-                            </tbody>
-                    </table>
-                </div>
 
-                                <div id="game-status">
-                    <p id="connection-status">Ready to Start</p>
-                    <button id="bingo-btn">Bingo</button>
-                </div>
-                
-                                <div id="game-controls">
+                        <div id="player-card">
+                <h3>Your Card</h3> 
+                <h4>Card Number <span id="card-number">XX</span></h4>
+                <table>
+                    <thead>
+                        <tr><th>B</th><th>I</th><th>N</th><th>G</th><th>O</th></tr>
+                    </thead>
+                    <tbody id="bingo-card-grid"></tbody>
+                </table>
+            </div>
+
+                        <div id="game-status-controls">
+                <p id="connection-status">Ready to Start</p>
+                <button id="bingo-btn">Bingo</button>
+                <div id="game-controls">
                     <button id="exit-btn">Exit</button>
                     <button id="refresh-btn">Refresh</button>
                 </div>
             </div>
         </div>
+
+                <div id="call-board-modal" class="hidden">
+            <div id="call-board">
+                <h3>የተጠሩ ቁጥሮች</h3>
+                <div class="call-board-grid"></div>                 <button id="close-board-btn">ዝጋ</button>
+            </div>
+        </div>
+
     </div>
 
     <script src="game.js"></script>
